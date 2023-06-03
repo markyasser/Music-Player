@@ -44,11 +44,12 @@ exports.getSignup = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  console.log(req.body);
   User.findOne({ email: email })
     .then(user => {
       if (!user) {
         req.flash('error', 'Invalid email or password.');
-        return res.redirect('/login');
+        return res.status(500).json({ error: '1 An error occurred' });
       }
       bcrypt
         .compare(password, user.password)
@@ -58,15 +59,15 @@ exports.postLogin = (req, res, next) => {
             req.session.user = user;
             return req.session.save(err => {
               console.log(err);
-              res.redirect('/');
+              res.status(200).json({ message: 'Correct' });
             });
           }
           req.flash('error', 'Invalid email or password.');
-          res.redirect('/login');
+          res.status(500).json({ error: '2 An error occurred' });
         })
         .catch(err => {
           console.log(err);
-          res.redirect('/login');
+          res.status(500).json({ error: '3 An error occurred' });
         });
     })
     .catch(err => console.log(err));
