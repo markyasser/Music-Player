@@ -1,0 +1,51 @@
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    padding: 10px 20px;
+  }
+  
+  .navbar__title {
+    font-size: 24px;
+    font-weight: bold;
+    background: linear-gradient(to right, red, orange);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  
+  .navbar__button {
+    background-color: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    color: red;
+    border: none;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .navbar__button:hover {
+    background: linear-gradient(to right, red, orange);
+    color: white;
+  }
+  .navbar__login {
+    background: transparent;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(to right, red, orange);
+    color: red;
+    font-weight: bold;
+    font-size: 14px;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 20px;
+    border: 2px solid;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .navbar__login:hover {
+    background: linear-gradient(to right, red, orange);
+    color: white;
+  }
