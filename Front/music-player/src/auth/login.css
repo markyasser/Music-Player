@@ -1,0 +1,41 @@
+.login-page form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 5px;
+  padding: 20px;
+}
+.login-page h1 {
+    color: white;
+  }
+.login-page form label {
+  margin-bottom: 10px;
+}
+
+.login-page form input {
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  margin-bottom: 10px;
+  width: 300px;
+}
+.login-page form label {
+    color: #fff;
+    margin-bottom: 10px;
+  }
+.login-page form button[type="submit"] {
+    background: linear-gradient(to right, red, #ffa500);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 10px 20px;
+    transition: background 0.5s ease;
+    margin: 30px;
+    width: 330px;
+  }
+  
+  .login-page form button[type="submit"]:hover {
+    background: linear-gradient(to left, #ffff0f, #f00000);
+  }

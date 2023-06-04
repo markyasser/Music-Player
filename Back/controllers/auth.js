@@ -44,6 +44,7 @@ exports.getSignup = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  res.setHeader('Access-Control-Allow-Origin', '*');
   console.log(req.body);
   User.findOne({ email: email })
     .then(user => {
@@ -59,6 +60,8 @@ exports.postLogin = (req, res, next) => {
             req.session.user = user;
             return req.session.save(err => {
               console.log(err);
+              // add Access-Control-Allow-Origin: * to header
+              
               res.status(200).json({ message: 'Correct' });
             });
           }
