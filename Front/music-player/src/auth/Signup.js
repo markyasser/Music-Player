@@ -2,27 +2,27 @@ import "./login.css";
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-function Login() {
+function SignUp() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const history = useHistory();
 
 
   function handleSubmit(event) {
     event.preventDefault();
 
-    fetch('http://localhost:8080/auth/login', {
-      method: 'POST',
+    fetch('http://localhost:8080/auth/signup', {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email,name, password })
     })
       .then(response => response.json())
       .then(data => {
         // redirect to home page
-        if (data.token) {
-          localStorage.setItem('token', data.token);
+        if (data.message === 'success') {
           history.push('/');
         }
       })
@@ -32,7 +32,10 @@ function Login() {
     <div className="login-page">
     <h1>Login</h1>
     <form onSubmit={handleSubmit}>
-      <label htmlFor="username">email</label>
+      <label htmlFor="name">username</label>
+      <input type="text" id="name" name="name" value={name} onChange={event => setName(event.target.value)} />
+      
+      <label htmlFor="email">email</label>
       <input type="text" id="email" name="email" value={email} onChange={event => setEmail(event.target.value)} />
 
       <label htmlFor="password">Password</label>
@@ -44,4 +47,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;

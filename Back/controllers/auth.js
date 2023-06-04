@@ -26,7 +26,7 @@ exports.signup = (req, res, next) => {
       return user.save();
     })
     .then(result => {
-      res.status(201).json({ message: 'User created!', userId: result._id });
+      res.status(201).json({ message: 'success', userId: result._id });
     })
     .catch(err => {
       if (!err.statusCode) {
