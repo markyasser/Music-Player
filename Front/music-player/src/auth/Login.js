@@ -23,6 +23,7 @@ function Login() {
         // redirect to home page
         if (data.token) {
           localStorage.setItem('token', data.token);
+          console.log(data.token);
           history.push('/');
         }
       })

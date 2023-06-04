@@ -26,7 +26,15 @@ exports.signup = (req, res, next) => {
       return user.save();
     })
     .then(result => {
-      res.status(201).json({ message: 'success', userId: result._id });
+      const token = jwt.sign(
+        {
+          email: result.email,
+          userId: result._id.toString()
+        },
+        'somesupersecretsecret',
+        { expiresIn: '1h' }
+      );
+      res.status(201).json({ username: result.name , userId: result._id , token: token,message: 'success' });
     })
     .catch(err => {
       if (!err.statusCode) {
@@ -64,7 +72,7 @@ exports.login = (req, res, next) => {
         'somesupersecretsecret',
         { expiresIn: '1h' }
       );
-      res.status(200).json({ token: token, userId: loadedUser._id.toString() });
+      res.status(200).json({username: loadedUser.name ,userId: loadedUser._id.toString() ,  token: token ,message: 'success' });
     })
     .catch(err => {
       if (!err.statusCode) {

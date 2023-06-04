@@ -11,9 +11,9 @@ const postSchema = new Schema(
       type: String,
       required: true
     },
-    content: {
-      type: String,
-      required: true
+    likes: {
+      type: Number,
+      required: false
     },
     creator: {
       type: Schema.Types.ObjectId,

@@ -22,7 +22,8 @@ function SignUp() {
       .then(response => response.json())
       .then(data => {
         // redirect to home page
-        if (data.message === 'success') {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
           history.push('/');
         }
       })
