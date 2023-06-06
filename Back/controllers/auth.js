@@ -32,7 +32,7 @@ exports.signup = (req, res, next) => {
           userId: result._id.toString()
         },
         'somesupersecretsecret',
-        { expiresIn: '1h' }
+        { expiresIn: '30d' }
       );
       res.status(201).json({ username: result.name , userId: result._id , token: token,message: 'success' });
     })
@@ -70,7 +70,7 @@ exports.login = (req, res, next) => {
           userId: loadedUser._id.toString()
         },
         'somesupersecretsecret',
-        { expiresIn: '1h' }
+        { expiresIn: '30d' }
       );
       res.status(200).json({username: loadedUser.name ,userId: loadedUser._id.toString() ,  token: token ,message: 'success' });
     })

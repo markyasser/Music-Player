@@ -23,7 +23,7 @@ function SignUp() {
       .then(data => {
         // redirect to home page
         if (data.token) {
-          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', data);
           history.push('/');
         }
       })

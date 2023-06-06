@@ -50,3 +50,10 @@
     background: linear-gradient(to right, red, orange);
     color: white;
   }
+
+  .navbar__username {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+  }
