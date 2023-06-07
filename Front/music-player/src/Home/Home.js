@@ -3,10 +3,11 @@ import "./card.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 
-function Card({ title}) {
+function Card({ title, image}) {
+  console.log(image);
   return (
     <div className="card">
-      <img src="https://via.placeholder.com/150x150" alt=" img" className="card__image"/>
+      <img src={image} alt=" img" className="card__image"/>
       <div className="card__content">
         <h2 className="card__title">{title}</h2>
         <p className="card__likes">{0} Likes</p>
@@ -37,7 +38,7 @@ function Home() {
 
   return (
       <div>
-        {posts.map(post => <Card key={post._id} title={post.title} />)}
+        {posts.map(post => <Card key={post._id} title={post.title} image={`http://localhost:8080/${post.imageUrl}`} />)}
       </div>
   );
 }
