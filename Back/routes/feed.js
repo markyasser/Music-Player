@@ -25,6 +25,8 @@ router.post(
 );
 
 router.get('/post/:postId', isAuth, feedController.getPost);
+router.post('/like/:postId', isAuth, feedController.likePost);
+router.post('/dislike/:postId', isAuth, feedController.dislikePost);
 
 router.put(
   '/post/:postId',
