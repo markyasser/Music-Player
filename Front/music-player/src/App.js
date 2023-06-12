@@ -8,16 +8,16 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <NavBar/>
+        <NavBar />
         <Switch>
           <Route path="/login">
-            <Login/>
+            <Login />
           </Route>
           <Route path="/signup">
-            <SignUp/>
+            <SignUp />
           </Route>
           <Route path="/">
-            <Home/>
+            <Home />
           </Route>
         </Switch>
       </div>

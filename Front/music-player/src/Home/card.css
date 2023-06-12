@@ -40,3 +40,53 @@
   .card__like-button svg {
     background-color: transparent;
   }
+
+  .song-bar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #383c46;
+    color: #fff;
+    padding: 1rem;
+    overflow: hidden;
+    height: 20px;
+  }
+  .song-bar__title {
+    display: flex;
+    align-items: center;
+  }
+  .song-bar__image {
+    max-width: 40px;
+    max-height: 40px;
+    border-radius:5px;
+    margin-right: 10px;
+  }
+  .song-bar__progress {
+    width: 100%;
+    height: 2px;
+    background-color: #484c56;
+    margin-top: 0px;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  
+  .song-bar__progress .progress-bar {
+    background-color: #ff5722;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .song-bar__container {
+    width: 20%;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px;
+  }
+  
+  .song-bar__pause-button {
+    margin-right: 10px;
+  }
