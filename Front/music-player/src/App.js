@@ -2,9 +2,12 @@ import NavBar from "./NavBar/NavBar.js";
 import Home from "./Home/Home.js";
 import Login from "./auth/Login.js";
 import SignUp from "./auth/Signup.js";
+import UploadFile from "./NavBar/UploadFile.js";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-
 function App() {
+  const token = localStorage.getItem("user");
+  // let homePath = token ? "/" : "/login";
+  // let loginPath = token ? "/" : "/login";
   return (
     <Router>
       <div className="App">
@@ -16,9 +19,10 @@ function App() {
           <Route path="/signup">
             <SignUp />
           </Route>
-          <Route path="/">
-            <Home />
+          <Route path="/upload_file">
+            {token ? <UploadFile /> : <Login />}
           </Route>
+          <Route path="/">{token ? <Home /> : <Login />}</Route>
         </Switch>
       </div>
     </Router>

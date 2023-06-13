@@ -20,7 +20,7 @@ const postSchema = new Schema(
       required: false,
     },
     creator: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "User",
       required: true,
     },
