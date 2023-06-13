@@ -1,26 +1,50 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:music_player/business_logic/auth/auth_cubit.dart';
+import 'package:music_player/business_logic/music/music_cubit.dart';
 import 'package:music_player/constants/strings.dart';
 import 'package:music_player/data/model/user_model.dart';
+import 'package:music_player/data/repository/auth_repo.dart';
+import 'package:music_player/data/repository/music_repo.dart';
+import 'package:music_player/data/web_services/auth_webservices.dart';
+import 'package:music_player/data/web_services/music_webservices.dart';
 import 'package:music_player/presentation/screens/auth/login.dart';
 import 'package:music_player/presentation/screens/auth/signup.dart';
 import 'package:music_player/presentation/screens/home.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AppRouter {
-  // platform
-  bool get isMobile =>
-      defaultTargetPlatform == TargetPlatform.iOS ||
-      defaultTargetPlatform == TargetPlatform.android;
   // declare repository and cubit objects
+  late AuthRepository authRepo;
+  late AuthCubit authCubit;
+  late AuthWebService authWebService;
 
+  late MusicRepository musicRepo;
+  late MusicCubit musicCubit;
+  late MusicWebService musicWebService;
   AppRouter() {
-    // initialise repository and cubit objects
+    // auth
+    authWebService = AuthWebService();
+    authRepo = AuthRepository(authWebService);
+    authCubit = AuthCubit(authRepo);
+
+    musicWebService = MusicWebService();
+    musicRepo = MusicRepository(musicWebService);
+    musicCubit = MusicCubit(musicRepo);
   }
   Route? generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case homePageRoute:
-        return MaterialPageRoute(
-            builder: (_) => UserData.isLoggedIn ? const Home() : const Login());
+        return UserData.isLoggedIn
+            ? MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                      value: musicCubit,
+                      child: const Home(),
+                    ))
+            : MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                      value: authCubit,
+                      child: const Login(),
+                    ));
       case loginRoute:
         return MaterialPageRoute(builder: (_) => const Login());
       case signupRoute:

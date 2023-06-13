@@ -50,10 +50,10 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-  const email = req.body.email;
+  const username = req.body.name;
   const password = req.body.password;
   let loadedUser;
-  User.findOne({ email: email })
+  User.findOne({ name: { $regex: new RegExp(username, "i") } })
     .then((user) => {
       if (!user) {
         const error = new Error("A user with this email could not be found.");

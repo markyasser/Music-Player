@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class SignUpWidget extends StatefulWidget {
   const SignUpWidget({super.key});
@@ -17,7 +15,7 @@ class _SignUpWidgetState extends State<SignUpWidget> {
   void handleLogin() {
     String username = usernameController.text;
     String email = emailController.text;
-    String Password = passwordController.text;
+    String password = passwordController.text;
     // make sign up request
   }
 

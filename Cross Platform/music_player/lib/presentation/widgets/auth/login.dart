@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_player/business_logic/auth/auth_cubit.dart';
+import 'package:music_player/constants/strings.dart';
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
@@ -13,12 +16,12 @@ class _LoginWidgetState extends State<LoginWidget> {
   final passwordController = TextEditingController();
   void handleLogin() {
     String username = usernameController.text;
-    String Password = passwordController.text;
+    String password = passwordController.text;
     // make login request
+    BlocProvider.of<AuthCubit>(context).login(username, password);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget loginBody() {
     return Center(
       child: Column(
         children: [
@@ -73,18 +76,43 @@ class _LoginWidgetState extends State<LoginWidget> {
             width: 150,
             height: 40,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () => handleLogin(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
-              child: const Text('Login', style: TextStyle(fontSize: 19)),
+              child: BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, state) {
+                  if (state is LoginLoading) {
+                    return const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    );
+                  }
+                  return const Text('Login', style: TextStyle(fontSize: 19));
+                },
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is LoginSuccessfully) {
+            Navigator.pushReplacementNamed(context, homePageRoute);
+          }
+        },
+        child: loginBody());
   }
 }

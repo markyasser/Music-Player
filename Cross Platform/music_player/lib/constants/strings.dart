@@ -1,4 +1,4 @@
-const baseUrl = 'https://student-system.herokuapp.com/';
+const baseUrl = 'http://localhost:8080/';
 const appUrl = 'https://medics-2d0c7.web.app/';
 const enableDateBlock = true;
 const enableScreenShots = false;

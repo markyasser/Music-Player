@@ -4,7 +4,7 @@ import 'package:music_player/data/model/user_model.dart';
 
 class NavBar extends StatelessWidget {
   const NavBar({super.key});
-  Widget NotAuthButtons(context) {
+  Widget notAuthButtons(context) {
     return Row(
       //login button
       children: [
@@ -61,11 +61,16 @@ class NavBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          child: const Text(' Upload ',
-              style: TextStyle(
-                fontSize: 17,
-                // fontWeight: FontWeight.bold,
-              )),
+          child: Row(
+            children: const [
+              Text(' Upload ',
+                  style: TextStyle(
+                    fontSize: 17,
+                    // fontWeight: FontWeight.bold,
+                  )),
+              Icon(Icons.file_upload_outlined)
+            ],
+          ),
         ),
         const SizedBox(width: 10),
         // username
@@ -98,7 +103,7 @@ class NavBar extends StatelessWidget {
             ),
           ),
         ),
-        UserData.isLoggedIn ? authButtons(context) : NotAuthButtons(context),
+        UserData.isLoggedIn ? authButtons(context) : notAuthButtons(context),
       ],
     );
   }

@@ -4,7 +4,7 @@ class User {
   String? email;
   String? userId;
   String? username;
-  String? imageUrl;
+  List<dynamic>? likedPosts;
   String? token;
 
   User({
@@ -12,15 +12,15 @@ class User {
     this.userId,
     this.username,
     this.token,
-    this.imageUrl,
+    this.likedPosts,
   });
 
   User.fromJson(Map<String, dynamic> json) {
-    userId = json['user_id'];
+    userId = json['userId'];
     email = json['email'];
-    username = json['name'];
-    imageUrl = json['image'] ?? '';
+    username = json['username'];
     token = json['token'];
+    likedPosts = json['likedPosts'];
   }
 }
 
