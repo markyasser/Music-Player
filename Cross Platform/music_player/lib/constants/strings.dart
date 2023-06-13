@@ -16,7 +16,7 @@ const coursesPreviwRoute = '/courses_preview';
 const pdfRoute = '/pdf_view';
 const videoRoute = '/video_view';
 // ------------------APP BAR-------------------
-const aboutRoute = '/about';
+const uploadMusicRoute = '/upload';
 const termsAndConditionsRoute = '/terms_conditions';
 const contactUsRoute = '/contact_us';
 const blogsRoute = '/blogs';
