@@ -29,7 +29,7 @@ const defaultStorage = getStorage(firebase);
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
   const userId = req.userId;
-  const perPage = 2;
+  const perPage = 8;
   let totalItems;
   Post.find()
     .countDocuments()
