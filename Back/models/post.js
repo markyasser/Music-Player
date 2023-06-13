@@ -19,6 +19,10 @@ const postSchema = new Schema(
       type: Number,
       required: false,
     },
+    likers: {
+      type: [{ type: Schema.Types.ObjectId, ref: "User" }],
+      required: false,
+    },
     creator: {
       type: String,
       ref: "User",

@@ -38,6 +38,7 @@ function Home() {
             postId={post._id}
             title={post.title}
             likes={post.likes}
+            isLikedbefore={post.isLiked}
             image={post.imageUrl}
             audio={post.musicUrl}
           />

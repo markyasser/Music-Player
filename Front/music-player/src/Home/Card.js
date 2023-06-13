@@ -1,19 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./card.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 import { faPause } from "@fortawesome/free-solid-svg-icons";
 import ProgressBar from "react-progressbar";
 
-function Card({ postId, title, likes, image, audio }) {
-  const [isLiked, setIsLiked] = useState(false);
+function Card({ postId, title, likes, isLikedbefore, image, audio }) {
+  const [isLiked, setIsLiked] = useState(isLikedbefore);
+  const [likesNumber, setLikes] = useState(likes);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = React.createRef();
+  const [likesData, setLikesData] = useState({
+    likes: likes,
+    isLiked: isLiked,
+  });
   function handleLikeClick() {
     const token = JSON.parse(localStorage.getItem("user")).token;
-    let likeOrDislike = isLiked ? "dislike" : "like";
     console.log("token : " + token);
-    fetch(`http://localhost:8080/feed/${likeOrDislike}/${postId}`, {
+    fetch(`http://localhost:8080/feed/like/${postId}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -21,10 +25,21 @@ function Card({ postId, title, likes, image, audio }) {
     })
       .then((response) => response.json())
       .then((data) => {
-        // setIsLiked(data.isLiked);
+        if (data) {
+          setLikesData({
+            likes: data.result.likes,
+            isLiked: data.result.isLiked,
+          });
+          const user = JSON.parse(localStorage.getItem("user"));
+          user.likedPosts = data.result.likedPosts;
+          localStorage.setItem("user", JSON.stringify(user));
+        }
       });
-    setIsLiked(!isLiked);
   }
+  useEffect(() => {
+    setLikes(likesData.likes);
+    setIsLiked(likesData.isLiked);
+  }, [likesData]);
   const [progress, setProgress] = useState(0);
 
   const handleTimeUpdate = () => {
@@ -73,7 +88,7 @@ function Card({ postId, title, likes, image, audio }) {
           />
           <div className="card__content">
             <h2 className="card__title">{title}</h2>
-            <p className="card__likes">{likes} Likes</p>
+            <p className="card__likes">{likesNumber} Likes</p>
             <FontAwesomeIcon
               className="card__like-button"
               icon={faHeart}

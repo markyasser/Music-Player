@@ -12,6 +12,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 function NavBar() {
   const history = useHistory();
   const user = JSON.parse(localStorage.getItem("user"));
+  const [UserData, setUserData] = useState(user);
+  // setUserData(user);
   const [isOpen, setIsOpen] = useState(false);
 
   function handleLoginClick() {
@@ -23,11 +25,13 @@ function NavBar() {
   }
 
   function handleHomeClick() {
+    setUserData(user);
     history.push("");
   }
 
   function handleLogoutClick() {
     localStorage.removeItem("user");
+    setUserData(null);
     history.push("/login");
   }
 
@@ -44,7 +48,7 @@ function NavBar() {
         iMusic
       </div>
       <div className="navbar__buttons">
-        {user && user.token ? (
+        {UserData && UserData.token ? (
           <div className="navbar__dropdown">
             <button className="navbar__upload" onClick={handleUploadClick}>
               <div> Upload </div>

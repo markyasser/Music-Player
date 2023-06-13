@@ -90,3 +90,12 @@
   .song-bar__pause-button {
     margin-right: 10px;
   }
+
+  .card__image {
+    position: relative;
+  }
+  
+  .card__image:hover {
+    opacity: 0.5;
+  }
+  

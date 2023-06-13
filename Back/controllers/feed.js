@@ -28,6 +28,7 @@ const defaultStorage = getStorage(firebase);
 
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
+  const userId = req.userId;
   const perPage = 2;
   let totalItems;
   Post.find()
@@ -39,9 +40,21 @@ exports.getPosts = (req, res, next) => {
         .limit(perPage);
     })
     .then((posts) => {
+      const updatedPosts = posts.map((post) => {
+        const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
+        return {
+          _id: post._id,
+          title: post.title,
+          content: post.content,
+          imageUrl: post.imageUrl,
+          musicUrl: post.musicUrl,
+          likes: post.likes,
+          isLiked: isLiked,
+        }; // Add the isLiked boolean to the post object
+      });
       res.status(200).json({
         message: "Fetched posts successfully.",
-        posts: posts,
+        posts: updatedPosts,
         totalItems: totalItems,
       });
     })
@@ -116,7 +129,15 @@ exports.createPost = (req, res, next) => {
             .then((result) => {
               res.status(201).json({
                 message: "Post created successfully!",
-                post: post,
+                post: {
+                  _id: post._id,
+                  title: post.title,
+                  content: post.content,
+                  imageUrl: post.imageUrl,
+                  musicUrl: post.musicUrl,
+                  likes: post.likes,
+                  isLiked: false,
+                },
                 creator: { _id: creator._id, name: creator.name },
               });
             });
@@ -145,7 +166,22 @@ exports.getPost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      res.status(200).json({ message: "Post fetched.", post: post });
+      let isLiked;
+      if (post.likers.includes(req.body.userId)) {
+        isLiked = true;
+      }
+      res.status(200).json({
+        message: "Post fetched.",
+        post: {
+          _id: post._id,
+          title: post.title,
+          content: post.content,
+          imageUrl: post.imageUrl,
+          musicUrl: post.musicUrl,
+          likes: post.likes,
+          isLiked: isLiked,
+        },
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -248,6 +284,7 @@ const clearImage = (filePath) => {
 
 exports.likePost = (req, res, next) => {
   const postId = req.params.postId;
+  let userId = req.userId;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error("Validation failed, entered data is incorrect.");
@@ -261,40 +298,40 @@ exports.likePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      post.likes = post.likes + 1;
-      return post.save();
-    })
-    .then((result) => {
-      res.status(200).json({ message: "Post updated!", post: result });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
-};
 
-exports.dislikePost = (req, res, next) => {
-  const postId = req.params.postId;
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed, entered data is incorrect.");
-    error.statusCode = 422;
-    throw error;
-  }
-  Post.findById(postId)
-    .then((post) => {
-      if (!post) {
-        const error = new Error("Could not find post.");
-        error.statusCode = 404;
-        throw error;
+      let isLiked = post.likers.includes(userId);
+      if (!isLiked) {
+        post.likers.push(userId);
+      } else {
+        post.likers.pull(userId);
       }
-      post.likes = post.likes - 1;
-      return post.save();
+      post.likes = isLiked ? post.likes - 1 : post.likes + 1;
+      post.isLiked = !isLiked;
+      post.save();
+      return User.findById(userId)
+        .then((user) => {
+          if (!user) {
+            const error = new Error("Could not find user with id = " + userId);
+            error.statusCode = 404;
+            throw error;
+          }
+          if (!isLiked) {
+            user.likedPosts.push(post._id);
+          } else {
+            user.likedPosts.pull(post._id);
+          }
+          return user.save();
+        })
+        .then((result) => {
+          return {
+            likes: post.likers.length,
+            isLiked: !isLiked,
+            likedPosts: result.likedPosts,
+          };
+        });
     })
     .then((result) => {
-      res.status(200).json({ message: "Post updated!", post: result });
+      res.status(200).json({ result: result });
     })
     .catch((err) => {
       if (!err.statusCode) {
