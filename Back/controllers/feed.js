@@ -65,6 +65,83 @@ exports.getPosts = (req, res, next) => {
       next(err);
     });
 };
+exports.getLikePosts = (req, res, next) => {
+  const currentPage = req.query.page || 1;
+  const userId = req.userId;
+  const perPage = 2;
+  let totalItems;
+  User.findById(userId)
+    .then((user) => {
+      const likedPostIds = user.likedPosts; // Get the array of liked post IDs from the user object
+
+      return Post.find({ _id: { $in: likedPostIds } }) // Find posts where the _id field is in the likedPostIds array
+        .then((posts) => {
+          const updatedPosts = posts.map((post) => {
+            const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
+            return {
+              _id: post._id,
+              title: post.title,
+              content: post.content,
+              imageUrl: post.imageUrl,
+              musicUrl: post.musicUrl,
+              likes: post.likes,
+              isLiked: isLiked,
+            }; // Add the isLiked boolean to the post object
+          });
+          res.status(200).json({
+            message: "Fetched posts successfully.",
+            posts: updatedPosts,
+            totalItems: totalItems,
+          });
+        })
+        .catch((err) => {
+          if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          next(err);
+        });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+
+  // Post.find()
+  //   .countDocuments()
+  //   .then((count) => {
+  //     totalItems = count;
+  //     return Post.find()
+  //       .skip((currentPage - 1) * perPage)
+  //       .limit(perPage);
+  //   })
+  //   .then((posts) => {
+  //     const updatedPosts = posts.map((post) => {
+  //       const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
+  //       return {
+  //         _id: post._id,
+  //         title: post.title,
+  //         content: post.content,
+  //         imageUrl: post.imageUrl,
+  //         musicUrl: post.musicUrl,
+  //         likes: post.likes,
+  //         isLiked: isLiked,
+  //       }; // Add the isLiked boolean to the post object
+  //     });
+  //     res.status(200).json({
+  //       message: "Fetched posts successfully.",
+  //       posts: updatedPosts,
+  //       totalItems: totalItems,
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     if (!err.statusCode) {
+  //       err.statusCode = 500;
+  //     }
+  //     next(err);
+  //   });
+};
 
 exports.createPost = (req, res, next) => {
   const errors = validationResult(req);

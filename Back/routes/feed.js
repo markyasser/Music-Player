@@ -8,6 +8,8 @@ const router = express.Router();
 
 // GET /feed/posts
 router.get("/posts", isAuth, feedController.getPosts);
+// GET /feed/posts
+router.get("/get_liked", isAuth, feedController.getLikePosts);
 
 // POST /feed/post
 router.post(

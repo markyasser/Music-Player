@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import {
   faCloudUploadAlt,
-  faCog,
+  faHeart,
   faInfoCircle,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
@@ -41,6 +41,9 @@ function NavBar() {
   function handleUploadClick() {
     history.push("/upload_file");
   }
+  function handleLikedClick() {
+    history.push("/liked");
+  }
 
   return (
     <nav className="navbar">
@@ -64,23 +67,13 @@ function NavBar() {
               <div className="navbar__dropdown-content">
                 <div
                   className="navbar__dropdown-button"
-                  onClick={handleLogoutClick}
+                  onClick={handleLikedClick}
                 >
                   <FontAwesomeIcon
                     className="navbar__upload-icon"
-                    icon={faSignOutAlt}
+                    icon={faHeart}
                   />
-                  <div>Logout</div>
-                </div>
-                <div
-                  className="navbar__dropdown-button"
-                  onClick={() => console.log("Settings clicked")}
-                >
-                  <FontAwesomeIcon
-                    className="navbar__upload-icon"
-                    icon={faCog}
-                  />
-                  <div>Settings</div>
+                  <div>Liked Trackes</div>
                 </div>
                 <div
                   className="navbar__dropdown-button"
@@ -91,6 +84,16 @@ function NavBar() {
                     icon={faInfoCircle}
                   />
                   <div>Info</div>
+                </div>
+                <div
+                  className="navbar__dropdown-button"
+                  onClick={handleLogoutClick}
+                >
+                  <FontAwesomeIcon
+                    className="navbar__upload-icon"
+                    icon={faSignOutAlt}
+                  />
+                  <div>Logout</div>
                 </div>
               </div>
             )}

@@ -2,6 +2,7 @@ import NavBar from "./NavBar/NavBar.js";
 import Home from "./Home/Home.js";
 import Login from "./auth/Login.js";
 import SignUp from "./auth/Signup.js";
+import LikedTracks from "./Home/LikedTracks.js";
 import UploadFile from "./NavBar/UploadFile.js";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 function App() {
@@ -18,6 +19,9 @@ function App() {
           </Route>
           <Route path="/signup">
             <SignUp />
+          </Route>
+          <Route path="/liked">
+            <LikedTracks />
           </Route>
           <Route path="/upload_file">
             {token ? <UploadFile /> : <Login />}
