@@ -32,4 +32,16 @@ class AuthCubit extends Cubit<AuthState> {
       }
     });
   }
+
+  void getUser(token) async {
+    if (isClosed) return;
+    emit(LoginLoading());
+    authRepo.getUser(token).then((value) {
+      if (value == 'success') {
+        emit(LoginSuccessfully());
+      } else {
+        emit(LoginFailed(value!));
+      }
+    });
+  }
 }

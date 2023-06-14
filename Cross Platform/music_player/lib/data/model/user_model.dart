@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
   String? email;
@@ -28,6 +29,8 @@ class UserData {
   static User? user;
   static bool isLoggedIn = false;
   static initUser(Map<String, dynamic> json) {
+    SharedPreferences.getInstance()
+        .then((value) => value.setString('token', UserData.user!.token!));
     UserData.isLoggedIn = true;
     UserData.user = User.fromJson(json);
   }
@@ -35,8 +38,8 @@ class UserData {
   static logout() {
     UserData.user = null;
     UserData.isLoggedIn = false;
-    // SharedPreferences.getInstance()
-    //     .then((value) => value.setString('token', ''));
+    SharedPreferences.getInstance()
+        .then((value) => value.setString('token', ''));
     debugPrint('user logged out');
   }
 }

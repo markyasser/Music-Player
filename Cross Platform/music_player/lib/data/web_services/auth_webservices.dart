@@ -42,6 +42,19 @@ class AuthWebService {
     }
   }
 
+  Future getUser(token) async {
+    try {
+      var res = await dio.get('auth/user',
+          options: Options(headers: {
+            'Authorization': 'Bearer $token',
+          }));
+      return res;
+    } catch (e) {
+      debugPrint("from login $e");
+      return e;
+    }
+  }
+
   Future<dynamic> updateImage(String filepath) async {
     try {
       FormData formData = FormData.fromMap(

@@ -92,3 +92,27 @@ exports.login = (req, res, next) => {
       next(err);
     });
 };
+
+exports.getUserData = (req, res, next) => {
+  User.findById(req.userId)
+    .then((user) => {
+      if (!user) {
+        const error = new Error("Unauthorized access.");
+        error.statusCode = 401;
+        throw error;
+      } else {
+        res.status(200).json({
+          username: user.name,
+          userId: user._id.toString(),
+          likedPosts: user.likedPosts,
+          message: "success",
+        });
+      }
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};

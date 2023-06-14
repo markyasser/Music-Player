@@ -35,6 +35,21 @@ class AuthRepository {
     return message;
   }
 
+  Future<String?> getUser(token) async {
+    String? message;
+    await authWebService.getUser(token).then((value) {
+      if (value.statusCode == 200) {
+        message = value.data['message'];
+        value.data['token'] = token;
+        UserData.initUser(value.data);
+      } else {
+        debugPrint("login status code is ${value.statusCode}");
+        message = value.data['message'];
+      }
+    });
+    return message;
+  }
+
   Future<dynamic> updateImage(String val) async {
     final newVal = await authWebService.updateImage(val);
     debugPrint(newVal['image']);

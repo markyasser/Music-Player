@@ -19,10 +19,20 @@ class _HomeWidgetState extends State<HomeWidget> {
 
   Widget card(MusicModel item) {
     return Card(
-      child: Column(
+      child: Row(
         children: [
-          Image.network(item.imageUrl!),
-          Text(item.musicTitle!),
+          Image.network(
+            item.imageUrl!,
+            width: 50,
+          ),
+          Column(
+            children: [
+              Text(item.musicTitle!),
+              Text("${item.likes!} likes"),
+              Icon(Icons.favorite,
+                  color: item.isLiked! ? Colors.red : Colors.black)
+            ],
+          )
         ],
       ),
     );

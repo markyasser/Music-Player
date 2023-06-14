@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_player/business_logic/auth/auth_cubit.dart';
 import 'package:music_player/constants/strings.dart';
+import 'package:music_player/data/model/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({super.key});
@@ -14,6 +16,18 @@ class _LoginWidgetState extends State<LoginWidget> {
   bool _obscureText = true;
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((prefs) {
+      String? token = prefs.getString("token");
+      if (token != null) {
+        BlocProvider.of<AuthCubit>(context).getUser(token);
+      }
+    });
+    super.initState();
+  }
+
   void handleLogin() {
     String username = usernameController.text;
     String password = passwordController.text;
@@ -110,6 +124,8 @@ class _LoginWidgetState extends State<LoginWidget> {
     return BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is LoginSuccessfully) {
+            Navigator.pushReplacementNamed(context, homePageRoute);
+          } else if (state is GetUserSuccessfully) {
             Navigator.pushReplacementNamed(context, homePageRoute);
           }
         },

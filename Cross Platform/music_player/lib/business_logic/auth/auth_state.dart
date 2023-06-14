@@ -14,6 +14,10 @@ class SignUpSuccessfully extends AuthState {
   SignUpSuccessfully();
 }
 
+class SignUpLoading extends AuthState {
+  SignUpLoading();
+}
+
 class LoginFailed extends AuthState {
   final String errorMessage;
   LoginFailed(this.errorMessage);
@@ -27,6 +31,11 @@ class LoginLoading extends AuthState {
   LoginLoading();
 }
 
-class SignUpLoading extends AuthState {
-  SignUpLoading();
+class GetUserFailed extends AuthState {
+  final String errorMessage;
+  GetUserFailed(this.errorMessage);
+}
+
+class GetUserSuccessfully extends AuthState {
+  GetUserSuccessfully();
 }
