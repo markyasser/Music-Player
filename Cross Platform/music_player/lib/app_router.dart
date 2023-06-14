@@ -11,6 +11,7 @@ import 'package:music_player/presentation/screens/auth/login.dart';
 import 'package:music_player/presentation/screens/auth/signup.dart';
 import 'package:music_player/presentation/screens/home.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_player/presentation/screens/upload.dart';
 
 class AppRouter {
   // declare repository and cubit objects
@@ -49,6 +50,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const Login());
       case signupRoute:
         return MaterialPageRoute(builder: (_) => const SignUp());
+      case uploadMusicRoute:
+        return MaterialPageRoute(builder: (_) => const Upload());
 
       default:
         return null;
