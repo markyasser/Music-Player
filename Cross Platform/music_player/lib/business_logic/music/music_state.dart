@@ -13,3 +13,10 @@ class MusicLoaded extends MusicState {
 }
 
 class MusicFaild extends MusicState {}
+
+class LikeSuccess extends MusicState {
+  final List<MusicModel> musicList;
+  LikeSuccess(this.musicList);
+}
+
+class LikeFailed extends MusicState {}

@@ -27,4 +27,17 @@ class MusicWebService {
       return e;
     }
   }
+
+  Future like(String postId) async {
+    try {
+      var res = await dio.post('feed/like/$postId',
+          options: Options(headers: {
+            'Authorization': 'Bearer ${UserData.user!.token}',
+          }));
+      return res;
+    } catch (e) {
+      debugPrint("from like post $postId $e");
+      return e;
+    }
+  }
 }

@@ -363,18 +363,47 @@ exports.likePost = (req, res, next) => {
           } else {
             user.likedPosts.pull(post._id);
           }
-          return user.save();
+          user.save();
         })
-        .then((result) => {
-          return {
-            likes: post.likers.length,
-            isLiked: !isLiked,
-            likedPosts: result.likedPosts,
-          };
+        .then(() => {
+          const currentPage = req.query.page || 1;
+          const userId = req.userId;
+          const perPage = 8;
+          let totalItems;
+          Post.find()
+            .countDocuments()
+            .then((count) => {
+              totalItems = count;
+              return Post.find()
+                .skip((currentPage - 1) * perPage)
+                .limit(perPage);
+            })
+            .then((posts) => {
+              const updatedPosts = posts.map((post) => {
+                const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
+                return {
+                  _id: post._id,
+                  title: post.title,
+                  content: post.content,
+                  imageUrl: post.imageUrl,
+                  musicUrl: post.musicUrl,
+                  likes: post.likes,
+                  isLiked: isLiked,
+                }; // Add the isLiked boolean to the post object
+              });
+              res.status(200).json({
+                message: "Fetched posts successfully.",
+                posts: updatedPosts,
+                totalItems: totalItems,
+              });
+            })
+            .catch((err) => {
+              if (!err.statusCode) {
+                err.statusCode = 500;
+              }
+              next(err);
+            });
         });
-    })
-    .then((result) => {
-      res.status(200).json({ result: result });
     })
     .catch((err) => {
       if (!err.statusCode) {

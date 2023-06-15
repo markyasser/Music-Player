@@ -66,7 +66,9 @@ class _HomeWidgetState extends State<HomeWidget> {
     super.dispose();
   }
 
-  void like() {}
+  void like(postId) {
+    BlocProvider.of<MusicCubit>(context).like(postId);
+  }
 
   Widget card(MusicModel item) {
     return ClipRRect(
@@ -96,7 +98,10 @@ class _HomeWidgetState extends State<HomeWidget> {
                   Text("${item.likes!} likes"),
                   const SizedBox(height: 20),
                   IconButton(
-                    onPressed: () => like(),
+                    highlightColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onPressed: () => like(item.id!),
                     icon: Icon(Icons.favorite,
                         color: item.isLiked! ? Colors.red : Colors.black),
                   ),
@@ -137,6 +142,35 @@ class _HomeWidgetState extends State<HomeWidget> {
     return BlocBuilder<MusicCubit, MusicState>(
       builder: (context, state) {
         if (state is MusicLoaded) {
+          playlist = ConcatenatingAudioSource(
+              children: state.musicList.map((item) {
+            return AudioSource.uri(Uri.parse(item.musicUrl!),
+                tag: MediaItem(
+                    id: item.id!,
+                    title: item.musicTitle!,
+                    artist: 'Mark',
+                    artUri: Uri.parse(item.imageUrl!)));
+          }).toList());
+          _init();
+          return Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: state.musicList
+                        .map((item) => musicCardInstance(item))
+                        .toList(),
+                  ),
+                ),
+              ),
+              ProgressBarWidget(
+                  positionDataStream: _positionDataStream,
+                  audioPlayer: _audioPlayer),
+            ],
+          );
+        } else if (state is LikeSuccess) {
           playlist = ConcatenatingAudioSource(
               children: state.musicList.map((item) {
             return AudioSource.uri(Uri.parse(item.musicUrl!),
