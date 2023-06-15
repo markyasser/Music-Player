@@ -67,44 +67,53 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   Widget card(MusicModel item) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(5),
-                child: Image.network(
-                  item.imageUrl!,
-                  width: 120,
-                  height: 120,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(item.musicTitle!,
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 7),
-                  Text("${item.likes!} likes"),
-                  const SizedBox(height: 20),
-                  IconButton(
-                    highlightColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    onPressed: () => like(item.id!),
-                    icon: Icon(Icons.favorite,
-                        color: item.isLiked! ? Colors.red : Colors.black),
+    return SizedBox(
+      height: 115,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.network(
+                    item.imageUrl!,
+                    width: 88,
+                    height: 88,
                   ),
-                  const SizedBox(height: 5),
-                ],
-              )
-            ],
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(item.musicTitle!,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                    // const SizedBox(height: 5),
+                    Text(item.musicSinger!,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey)),
+                    // const SizedBox(height: 7),
+                    Text("${item.likes!} likes"),
+                    // const SizedBox(height: 5),
+                    IconButton(
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onPressed: () => like(item.id!),
+                      icon: Icon(Icons.favorite,
+                          color: item.isLiked! ? Colors.red : Colors.black,
+                          size: 20),
+                    ),
+                    const SizedBox(height: 5),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -145,7 +154,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 tag: MediaItem(
                     id: item.id!,
                     title: item.musicTitle!,
-                    artist: 'Mark',
+                    artist: item.musicSinger!,
                     artUri: Uri.parse(item.imageUrl!)));
           }).toList());
           _init();

@@ -23,7 +23,7 @@ class ProgressBarWidget extends StatelessWidget {
       width: double.infinity,
       height: 80,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           StreamBuilder<SequenceState?>(
               stream: audioPlayer.sequenceStateStream,
@@ -31,42 +31,68 @@ class ProgressBarWidget extends StatelessWidget {
                 final state = snapshot.data;
                 if (state?.sequence.isEmpty ?? true) return const SizedBox();
                 final metadata = state!.currentSource!.tag as MediaItem;
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Image.network(
-                    metadata.artUri.toString(),
-                    width: 50,
-                    height: 50,
-                  ),
+                return Row(
+                  children: [
+                    const SizedBox(width: 25),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Image.network(
+                        metadata.artUri.toString(),
+                        width: 50,
+                        height: 50,
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 14),
+                        Text(metadata.title,
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold)),
+                        Text(metadata.artist!,
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.grey))
+                      ],
+                    )
+                  ],
                 );
               }),
-          const SizedBox(width: 15),
-          Column(
+          Row(
             children: [
-              Controls(audioPlayer: audioPlayer, music: music),
-              SizedBox(
-                width: 500,
-                child: StreamBuilder<PositionData>(
-                    stream: positionDataStream,
-                    builder: (context, snapshot) {
-                      final positionData = snapshot.data;
-                      return ProgressBar(
-                          barHeight: 8,
-                          baseBarColor: Colors.grey[600],
-                          bufferedBarColor: Colors.grey,
-                          progressBarColor: Colors.white,
-                          thumbColor: Colors.white,
-                          timeLabelTextStyle:
-                              const TextStyle(color: Colors.white),
-                          progress: positionData?.position ?? Duration.zero,
-                          total: positionData?.duration ?? Duration.zero,
-                          buffered:
-                              positionData?.bufferedPosition ?? Duration.zero,
-                          onSeek: (value) => audioPlayer.seek(value));
-                    }),
+              Column(
+                children: [
+                  Controls(audioPlayer: audioPlayer, music: music),
+                  SizedBox(
+                    width: 400,
+                    child: StreamBuilder<PositionData>(
+                        stream: positionDataStream,
+                        builder: (context, snapshot) {
+                          final positionData = snapshot.data;
+                          return ProgressBar(
+                              barHeight: 8,
+                              baseBarColor: Colors.grey[600],
+                              bufferedBarColor: Colors.grey,
+                              progressBarColor: Colors.white,
+                              thumbColor: Colors.white,
+                              timeLabelTextStyle:
+                                  const TextStyle(color: Colors.white),
+                              progress: positionData?.position ?? Duration.zero,
+                              total: positionData?.duration ?? Duration.zero,
+                              buffered: positionData?.bufferedPosition ??
+                                  Duration.zero,
+                              onSeek: (value) => audioPlayer.seek(value));
+                        }),
+                  ),
+                ],
               ),
+              const SizedBox(width: 20),
+              IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Icons.volume_up, color: Colors.white))
             ],
           ),
+          const SizedBox(width: 140),
         ],
       ),
     );

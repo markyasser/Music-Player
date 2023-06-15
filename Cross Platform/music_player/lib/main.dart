@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Reddit',
+      title: 'iMusic',
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
             // color: Color.fromARGB(255, 255, 203, 112),

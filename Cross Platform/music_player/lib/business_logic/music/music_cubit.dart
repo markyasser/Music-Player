@@ -43,15 +43,15 @@ class MusicCubit extends Cubit<MusicState> {
       emit(UploadFailed('Creator is required'));
       return;
     }
-    if (img != null) {
+    if (img == null) {
       emit(UploadFailed('Image is required'));
       return;
     }
-    if (audio != null) {
+    if (audio == null) {
       emit(UploadFailed('Audio File is required'));
       return;
     }
-    musicRepo.upload(title, creator, img!, audio!).then((value) {
+    musicRepo.upload(title, creator, img, audio).then((value) {
       if (value == 'success') {
         emit(UploadSuccess());
       } else {

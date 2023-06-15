@@ -22,7 +22,7 @@ class MusicModel {
     musicUrl = json['musicUrl'];
     imageUrl = json['imageUrl'];
     musicTitle = json['title'];
-    // musicSinger = json['token'];
+    musicSinger = json['content'];
     likes = json['likes'];
     isLiked = json['isLiked'];
   }

@@ -138,10 +138,21 @@ class _UploadWidgetState extends State<UploadWidget> {
                       ),
                     );
                   }
+
                   return const Text('Submit', style: TextStyle(fontSize: 19));
                 },
               ),
             ),
+          ),
+          const SizedBox(height: 20),
+          BlocBuilder<MusicCubit, MusicState>(
+            builder: (context, state) {
+              if (state is UploadFailed) {
+                return Text(state.errorMessage,
+                    style: const TextStyle(fontSize: 19, color: Colors.red));
+              }
+              return const SizedBox();
+            },
           ),
         ],
       ),
