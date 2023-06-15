@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/business_logic/auth/auth_cubit.dart';
 import 'package:music_player/business_logic/music/music_cubit.dart';
+import 'package:music_player/business_logic/music/play_pause_cubit.dart';
 import 'package:music_player/constants/strings.dart';
 import 'package:music_player/data/model/user_model.dart';
 import 'package:music_player/data/repository/auth_repo.dart';
@@ -22,23 +23,28 @@ class AppRouter {
   late MusicRepository musicRepo;
   late MusicCubit musicCubit;
   late MusicWebService musicWebService;
+  late PlayPauseCubit playPauseCubit;
   AppRouter() {
     // auth
     authWebService = AuthWebService();
     authRepo = AuthRepository(authWebService);
     authCubit = AuthCubit(authRepo);
-
+    // music
     musicWebService = MusicWebService();
     musicRepo = MusicRepository(musicWebService);
     musicCubit = MusicCubit(musicRepo);
+    playPauseCubit = PlayPauseCubit();
   }
   Route? generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case homePageRoute:
         return UserData.isLoggedIn
             ? MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                      value: musicCubit,
+                builder: (_) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider.value(value: musicCubit),
+                        BlocProvider.value(value: playPauseCubit),
+                      ],
                       child: const Home(),
                     ))
             : MaterialPageRoute(

@@ -3,7 +3,9 @@ import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/business_logic/music/music_cubit.dart';
+import 'package:music_player/business_logic/music/play_pause_cubit.dart';
 import 'package:music_player/data/model/music_model.dart';
 import 'package:music_player/presentation/widgets/audio/controller.dart';
 import 'package:music_player/presentation/widgets/audio/progressbar.dart';
@@ -32,6 +34,9 @@ class _HomeWidgetState extends State<HomeWidget> {
   String currentPLayingUrl = "";
   Duration pausedDuration = Duration.zero;
   MusicModel? currentPLaying;
+
+  late ConcatenatingAudioSource playlist;
+
   Stream<PositionData> get _positionDataStream =>
       Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
           _audioPlayer.positionStream,
@@ -47,6 +52,12 @@ class _HomeWidgetState extends State<HomeWidget> {
     super.initState();
     BlocProvider.of<MusicCubit>(context).getPosts();
     _audioPlayer = AudioPlayer();
+    // _init();
+  }
+
+  Future<void> _init() async {
+    await _audioPlayer.setAudioSource(playlist);
+    await _audioPlayer.setLoopMode(LoopMode.all);
   }
 
   @override
@@ -54,6 +65,8 @@ class _HomeWidgetState extends State<HomeWidget> {
     _audioPlayer.dispose();
     super.dispose();
   }
+
+  void like() {}
 
   Widget card(MusicModel item) {
     return ClipRRect(
@@ -76,20 +89,17 @@ class _HomeWidgetState extends State<HomeWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Text(item.musicTitle!,
-                          style: const TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.bold)),
-                      const SizedBox(width: 5),
-                      Controls(audioPlayer: _audioPlayer, url: item.musicUrl!),
-                    ],
-                  ),
+                  Text(item.musicTitle!,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 7),
                   Text("${item.likes!} likes"),
                   const SizedBox(height: 20),
-                  Icon(Icons.favorite,
-                      color: item.isLiked! ? Colors.red : Colors.black),
+                  IconButton(
+                    onPressed: () => like(),
+                    icon: Icon(Icons.favorite,
+                        color: item.isLiked! ? Colors.red : Colors.black),
+                  ),
                   const SizedBox(height: 5),
                 ],
               )
@@ -100,10 +110,43 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
+  Widget musicCardInstance(music) {
+    return StreamBuilder<PlayerState>(
+      stream: _audioPlayer.playerStateStream,
+      builder: (context, snapshot) {
+        final playerState = snapshot.data;
+        final processingState = playerState?.processingState;
+        final playing = playerState?.playing;
+        if (!(playing ?? false)) {
+          return InkWell(
+              onTap: () {
+                BlocProvider.of<PlayPauseCubit>(context)
+                    .setMusicInstance(music!);
+                _audioPlayer.play();
+              },
+              child: card(music));
+        } else if (processingState != ProcessingState.completed) {
+          return InkWell(onTap: () => _audioPlayer.pause(), child: card(music));
+        }
+        return Container();
+      },
+    );
+  }
+
   Widget homeBody() {
     return BlocBuilder<MusicCubit, MusicState>(
       builder: (context, state) {
         if (state is MusicLoaded) {
+          playlist = ConcatenatingAudioSource(
+              children: state.musicList.map((item) {
+            return AudioSource.uri(Uri.parse(item.musicUrl!),
+                tag: MediaItem(
+                    id: item.id!,
+                    title: item.musicTitle!,
+                    artist: 'Mark',
+                    artUri: Uri.parse(item.imageUrl!)));
+          }).toList());
+          _init();
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -111,8 +154,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                 height: MediaQuery.of(context).size.height,
                 child: SingleChildScrollView(
                   child: Column(
-                    children:
-                        state.musicList.map((item) => card(item)).toList(),
+                    children: state.musicList
+                        .map((item) => musicCardInstance(item))
+                        .toList(),
                   ),
                 ),
               ),
