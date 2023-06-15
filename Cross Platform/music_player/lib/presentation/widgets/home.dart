@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -7,7 +5,6 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/business_logic/music/music_cubit.dart';
 import 'package:music_player/business_logic/music/play_pause_cubit.dart';
 import 'package:music_player/data/model/music_model.dart';
-import 'package:music_player/presentation/widgets/audio/controller.dart';
 import 'package:music_player/presentation/widgets/audio/progressbar.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -52,7 +49,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     super.initState();
     BlocProvider.of<MusicCubit>(context).getPosts();
     _audioPlayer = AudioPlayer();
-    // _init();
   }
 
   Future<void> _init() async {
@@ -115,7 +111,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  Widget musicCardInstance(music) {
+  Widget musicCardInstance(music, index) {
     return StreamBuilder<PlayerState>(
       stream: _audioPlayer.playerStateStream,
       builder: (context, snapshot) {
@@ -128,6 +124,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 BlocProvider.of<PlayPauseCubit>(context)
                     .setMusicInstance(music!);
                 _audioPlayer.play();
+                // _audioPlayer.seek(Duration.zero, index: index);
               },
               child: card(music));
         } else if (processingState != ProcessingState.completed) {
@@ -152,6 +149,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                     artUri: Uri.parse(item.imageUrl!)));
           }).toList());
           _init();
+          int i = 0;
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -159,9 +157,9 @@ class _HomeWidgetState extends State<HomeWidget> {
                 height: MediaQuery.of(context).size.height,
                 child: SingleChildScrollView(
                   child: Column(
-                    children: state.musicList
-                        .map((item) => musicCardInstance(item))
-                        .toList(),
+                    children: state.musicList.map((item) {
+                      return musicCardInstance(item, i++);
+                    }).toList(),
                   ),
                 ),
               ),
@@ -181,6 +179,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                     artUri: Uri.parse(item.imageUrl!)));
           }).toList());
           _init();
+          int i = 0;
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
@@ -189,7 +188,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: state.musicList
-                        .map((item) => musicCardInstance(item))
+                        .map((item) => musicCardInstance(item, i++))
                         .toList(),
                   ),
                 ),

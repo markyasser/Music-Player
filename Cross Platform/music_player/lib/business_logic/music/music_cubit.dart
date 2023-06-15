@@ -1,8 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:music_player/data/model/music_model.dart';
 import 'package:music_player/data/repository/music_repo.dart';
-
 part 'music_state.dart';
 
 class MusicCubit extends Cubit<MusicState> {
@@ -28,6 +27,35 @@ class MusicCubit extends Cubit<MusicState> {
         emit(LikeSuccess(value));
       } else {
         emit(LikeFailed());
+      }
+    });
+  }
+
+  void upload(
+      String title, String creator, Uint8List? img, Uint8List? audio) async {
+    if (isClosed) return;
+    emit(UploadLoading());
+    if (title == '') {
+      emit(UploadFailed('Title is required'));
+      return;
+    }
+    if (creator == '') {
+      emit(UploadFailed('Creator is required'));
+      return;
+    }
+    if (img != null) {
+      emit(UploadFailed('Image is required'));
+      return;
+    }
+    if (audio != null) {
+      emit(UploadFailed('Audio File is required'));
+      return;
+    }
+    musicRepo.upload(title, creator, img!, audio!).then((value) {
+      if (value == 'success') {
+        emit(UploadSuccess());
+      } else {
+        emit(UploadFailed(value));
       }
     });
   }

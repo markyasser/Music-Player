@@ -20,3 +20,12 @@ class LikeSuccess extends MusicState {
 }
 
 class LikeFailed extends MusicState {}
+
+class UploadSuccess extends MusicState {}
+
+class UploadLoading extends MusicState {}
+
+class UploadFailed extends MusicState {
+  final String errorMessage;
+  UploadFailed(this.errorMessage);
+}

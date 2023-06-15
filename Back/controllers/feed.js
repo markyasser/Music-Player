@@ -171,7 +171,7 @@ exports.createPost = (req, res, next) => {
             })
             .then((result) => {
               res.status(201).json({
-                message: "Post created successfully!",
+                message: "success",
                 post: {
                   _id: post._id,
                   title: post.title,

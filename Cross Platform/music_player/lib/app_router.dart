@@ -57,7 +57,11 @@ class AppRouter {
       case signupRoute:
         return MaterialPageRoute(builder: (_) => const SignUp());
       case uploadMusicRoute:
-        return MaterialPageRoute(builder: (_) => const Upload());
+        return MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+                  value: musicCubit,
+                  child: const Upload(),
+                ));
 
       default:
         return null;
