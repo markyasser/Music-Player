@@ -23,6 +23,21 @@ class MusicRepository {
     return musicList;
   }
 
+  Future<List<MusicModel>?> getLikedPosts() async {
+    List<MusicModel>? musicList;
+    await musicWebService.getLikedPosts().then((value) {
+      if (value.statusCode == 200) {
+        musicList = value.data['posts'].map<MusicModel>((item) {
+          return MusicModel.fromJson(item);
+        }).toList();
+      } else {
+        debugPrint("get posts status code is ${value.statusCode}");
+        musicList = [];
+      }
+    });
+    return musicList;
+  }
+
   Future<List<MusicModel>?> like(String postId) async {
     List<MusicModel>? musicList;
     await musicWebService.like(postId).then((value) {

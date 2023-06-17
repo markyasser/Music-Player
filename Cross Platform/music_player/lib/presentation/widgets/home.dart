@@ -6,6 +6,7 @@ import 'package:music_player/business_logic/music/music_cubit.dart';
 import 'package:music_player/business_logic/music/play_pause_cubit.dart';
 import 'package:music_player/data/model/music_model.dart';
 import 'package:music_player/presentation/widgets/audio/progressbar.dart';
+import 'package:music_player/presentation/widgets/left_navbar.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PositionData {
@@ -104,6 +105,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       highlightColor: Colors.transparent,
                       hoverColor: Colors.transparent,
                       splashColor: Colors.transparent,
+                      splashRadius: 0.1,
                       onPressed: () => like(item.id!),
                       icon: Icon(Icons.favorite,
                           color: item.isLiked! ? Colors.red : Colors.black,
@@ -133,7 +135,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                 BlocProvider.of<PlayPauseCubit>(context)
                     .setMusicInstance(music!);
                 _audioPlayer.play();
-                // _audioPlayer.seek(Duration.zero, index: index);
+                _audioPlayer.seek(Duration.zero, index: index);
               },
               child: card(music));
         } else if (processingState != ProcessingState.completed) {
@@ -148,29 +150,48 @@ class _HomeWidgetState extends State<HomeWidget> {
     return BlocBuilder<MusicCubit, MusicState>(
       builder: (context, state) {
         if (state is MusicLoaded) {
-          playlist = ConcatenatingAudioSource(
-              children: state.musicList.map((item) {
-            return AudioSource.uri(Uri.parse(item.musicUrl!),
-                tag: MediaItem(
-                    id: item.id!,
-                    title: item.musicTitle!,
-                    artist: item.musicSinger!,
-                    artUri: Uri.parse(item.imageUrl!)));
-          }).toList());
-          _init();
-          int i = 0;
+          int i = -1;
+          if (state.musicList.isNotEmpty) {
+            playlist = ConcatenatingAudioSource(
+                children: state.musicList.map((item) {
+              return AudioSource.uri(Uri.parse(item.musicUrl!),
+                  tag: MediaItem(
+                      id: i.toString(),
+                      title: item.musicTitle!,
+                      artist: item.musicSinger!,
+                      artUri: Uri.parse(item.imageUrl!)));
+            }).toList());
+
+            _init();
+          }
+          i = 0;
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: state.musicList.map((item) {
-                      return musicCardInstance(item, i++);
-                    }).toList(),
-                  ),
-                ),
+              Row(
+                children: [
+                  const Expanded(flex: 1, child: LeftNavBar()),
+                  state.musicList.isNotEmpty
+                      ? Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: state.musicList.map((item) {
+                                  return musicCardInstance(item, i++);
+                                }).toList(),
+                              ),
+                            ),
+                          ))
+                      : const Expanded(
+                          flex: 10,
+                          child: Center(
+                              child: Text('Liked Music List is Empty',
+                                  style: TextStyle(
+                                      fontSize: 23,
+                                      fontWeight: FontWeight.bold)))),
+                ],
               ),
               ProgressBarWidget(
                   positionDataStream: _positionDataStream,
@@ -178,29 +199,50 @@ class _HomeWidgetState extends State<HomeWidget> {
             ],
           );
         } else if (state is LikeSuccess) {
-          playlist = ConcatenatingAudioSource(
-              children: state.musicList.map((item) {
-            return AudioSource.uri(Uri.parse(item.musicUrl!),
-                tag: MediaItem(
-                    id: item.id!,
-                    title: item.musicTitle!,
-                    artist: 'Mark',
-                    artUri: Uri.parse(item.imageUrl!)));
-          }).toList());
-          _init();
-          int i = 0;
+          int i = -1;
+          if (state.musicList.isNotEmpty) {
+            playlist = ConcatenatingAudioSource(
+                children: state.musicList.map((item) {
+              i++;
+              return AudioSource.uri(Uri.parse(item.musicUrl!),
+                  tag: MediaItem(
+                      id: i.toString(),
+                      title: item.musicTitle!,
+                      artist: 'Mark',
+                      artUri: Uri.parse(item.imageUrl!)));
+            }).toList());
+
+            _init();
+          }
+          i = 0;
           return Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: state.musicList
-                        .map((item) => musicCardInstance(item, i++))
-                        .toList(),
-                  ),
-                ),
+              Row(
+                children: [
+                  const Expanded(flex: 1, child: LeftNavBar()),
+                  state.musicList.isNotEmpty
+                      ? Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: state.musicList
+                                    .map((item) => musicCardInstance(item, i++))
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                        )
+                      : const Expanded(
+                          flex: 10,
+                          child: Center(
+                              child: Text('Liked Music List is Empty',
+                                  style: TextStyle(
+                                      fontSize: 23,
+                                      fontWeight: FontWeight.bold)))),
+                ],
               ),
               ProgressBarWidget(
                   positionDataStream: _positionDataStream,

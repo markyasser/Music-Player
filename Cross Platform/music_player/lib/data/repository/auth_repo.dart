@@ -10,7 +10,7 @@ class AuthRepository {
   Future<String?> signup(String password, String username, String email) async {
     String? message;
     await authWebService.signup(password, username, email).then((value) {
-      if (value.statusCode == 200) {
+      if (value.statusCode == 201) {
         message = value.data['message'];
         UserData.initUser(value.data);
       } else {

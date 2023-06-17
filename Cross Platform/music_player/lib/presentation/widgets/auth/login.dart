@@ -21,7 +21,7 @@ class _LoginWidgetState extends State<LoginWidget> {
   void initState() {
     SharedPreferences.getInstance().then((prefs) {
       String? token = prefs.getString("token");
-      if (token != null) {
+      if (token != null && token.isNotEmpty) {
         BlocProvider.of<AuthCubit>(context).getUser(token);
       }
     });

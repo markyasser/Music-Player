@@ -23,13 +23,13 @@ class LoginFailed extends AuthState {
   LoginFailed(this.errorMessage);
 }
 
-class LoginSuccessfully extends AuthState {
-  LoginSuccessfully();
-}
+class LoginSuccessfully extends AuthState {}
 
-class LoginLoading extends AuthState {
-  LoginLoading();
-}
+class LoginLoading extends AuthState {}
+
+class LogoutSuccessfully extends AuthState {}
+
+class LogoutLoading extends AuthState {}
 
 class GetUserFailed extends AuthState {
   final String errorMessage;

@@ -44,6 +44,7 @@ class AppRouter {
                       providers: [
                         BlocProvider.value(value: musicCubit),
                         BlocProvider.value(value: playPauseCubit),
+                        BlocProvider.value(value: authCubit),
                       ],
                       child: const Home(),
                     ))
@@ -53,13 +54,24 @@ class AppRouter {
                       child: const Login(),
                     ));
       case loginRoute:
-        return MaterialPageRoute(builder: (_) => const Login());
-      case signupRoute:
-        return MaterialPageRoute(builder: (_) => const SignUp());
-      case uploadMusicRoute:
         return MaterialPageRoute(
             builder: (_) => BlocProvider.value(
-                  value: musicCubit,
+                  value: authCubit,
+                  child: const Login(),
+                ));
+      case signupRoute:
+        return MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+                  value: authCubit,
+                  child: const SignUp(),
+                ));
+      case uploadMusicRoute:
+        return MaterialPageRoute(
+            builder: (_) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider.value(value: musicCubit),
+                    BlocProvider.value(value: authCubit),
+                  ],
                   child: const Upload(),
                 ));
 

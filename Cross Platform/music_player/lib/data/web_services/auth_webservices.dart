@@ -17,9 +17,9 @@ class AuthWebService {
 
   Future signup(String password, String username, String email) async {
     try {
-      var res = await dio.post('auth/signup', data: {
+      var res = await dio.put('auth/signup', data: {
         'email': email,
-        'username': username,
+        'name': username,
         'password': password,
       });
       return res;

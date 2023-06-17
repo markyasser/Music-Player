@@ -20,6 +20,18 @@ class MusicCubit extends Cubit<MusicState> {
     });
   }
 
+  void getLikedPosts() async {
+    if (isClosed) return;
+    emit(MusicLoading());
+    musicRepo.getLikedPosts().then((value) {
+      if (value != null) {
+        emit(MusicLoaded(value));
+      } else {
+        emit(MusicFaild());
+      }
+    });
+  }
+
   void like(String postId) async {
     if (isClosed) return;
     musicRepo.like(postId).then((value) {

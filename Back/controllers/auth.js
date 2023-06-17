@@ -36,7 +36,8 @@ exports.signup = (req, res, next) => {
       );
       res.status(201).json({
         username: result.name,
-        userId: result._id,
+        userId: loadedUser._id.toString(),
+        likedPosts: loadedUser.likedPosts,
         token: token,
         message: "success",
       });

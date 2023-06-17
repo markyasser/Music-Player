@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:music_player/business_logic/auth/auth_cubit.dart';
 import 'package:music_player/constants/strings.dart';
 import 'package:music_player/data/model/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NavBar extends StatelessWidget {
   const NavBar({super.key});
@@ -49,6 +52,33 @@ class NavBar extends StatelessWidget {
     );
   }
 
+  void _showMenu(BuildContext context) async {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final Size screenSize = MediaQuery.of(context).size;
+    final RelativeRect position = RelativeRect.fromLTRB(
+      screenSize.width - button.size.width,
+      kToolbarHeight,
+      0,
+      0,
+    );
+    final result = await showMenu(
+      context: context,
+      position: position,
+      items: [
+        PopupMenuItem(
+          value: 1,
+          onTap: () {
+            BlocProvider.of<AuthCubit>(context).logout();
+          },
+          child: const Text('Log out'),
+        ),
+      ],
+    );
+    if (result != null) {
+      // Handle menu item selection
+    }
+  }
+
   Widget authButtons(context) {
     return Row(
       //Upload button
@@ -74,7 +104,22 @@ class NavBar extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         // username
-        Text(UserData.user!.username!),
+        InkWell(
+          onTap: () => _showMenu(context),
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: Row(
+              children: [
+                const CircleAvatar(radius: 15, child: Icon(Icons.person)),
+                const SizedBox(width: 5),
+                Text(
+                  UserData.user!.username!,
+                  style: const TextStyle(fontSize: 15),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -103,7 +148,16 @@ class NavBar extends StatelessWidget {
             ),
           ),
         ),
-        UserData.isLoggedIn ? authButtons(context) : notAuthButtons(context),
+        UserData.isLoggedIn
+            ? BlocListener<AuthCubit, AuthState>(
+                listener: (context, state) {
+                  if (state is LogoutSuccessfully) {
+                    Navigator.pushReplacementNamed(context, loginRoute);
+                  }
+                },
+                child: authButtons(context),
+              )
+            : notAuthButtons(context),
       ],
     );
   }

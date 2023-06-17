@@ -40,6 +40,6 @@ class UserData {
     UserData.isLoggedIn = false;
     SharedPreferences.getInstance()
         .then((value) => value.setString('token', ''));
-    debugPrint('user logged out');
+    // debugPrint('user logged out');
   }
 }
