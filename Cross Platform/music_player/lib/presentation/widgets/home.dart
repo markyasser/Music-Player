@@ -72,6 +72,34 @@ class _HomeWidgetState extends State<HomeWidget> {
     BlocProvider.of<MusicCubit>(context).delete(postId);
   }
 
+  void _showDeleteDialog(BuildContext context, String postId, String name) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Music'),
+          content: Text('Are you sure you want to delete $name?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white)),
+            ),
+            ElevatedButton(
+              // red color
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () {
+                delete(postId);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget card(MusicModel item) {
     return SizedBox(
       height: 115,
@@ -127,7 +155,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                 ),
                 UserData.user!.userId == item.creatorId
                     ? IconButton(
-                        onPressed: () => delete(item.id),
+                        onPressed: () => _showDeleteDialog(
+                            context, item.id!, item.musicTitle!),
                         splashRadius: 2,
                         icon: const Icon(Icons.delete_outline))
                     : Container()
