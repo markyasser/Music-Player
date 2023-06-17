@@ -1,5 +1,6 @@
 class MusicModel {
   String? id;
+  String? creatorId;
   String? musicUrl;
   String? imageUrl;
   String? musicTitle;
@@ -13,6 +14,7 @@ class MusicModel {
     this.imageUrl,
     this.musicTitle,
     this.musicSinger,
+    this.creatorId,
     this.likes,
     this.isLiked,
   });
@@ -22,6 +24,7 @@ class MusicModel {
     musicUrl = json['musicUrl'];
     imageUrl = json['imageUrl'];
     musicTitle = json['title'];
+    creatorId = json['creatorId'];
     musicSinger = json['content'];
     likes = json['likes'];
     isLiked = json['isLiked'];

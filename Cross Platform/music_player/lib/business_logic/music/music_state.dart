@@ -29,3 +29,12 @@ class UploadFailed extends MusicState {
   final String errorMessage;
   UploadFailed(this.errorMessage);
 }
+
+class DeleteFailed extends MusicState {}
+
+class DeleteSuccess extends MusicState {
+  final List<MusicModel> musicList;
+  DeleteSuccess(this.musicList);
+}
+
+class DeleteLoading extends MusicState {}

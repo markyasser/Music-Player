@@ -65,4 +65,19 @@ class MusicRepository {
     });
     return msg;
   }
+
+  Future<List<MusicModel>?> delete(String postId) async {
+    List<MusicModel>? musicList;
+    await musicWebService.delete(postId).then((value) {
+      if (value.statusCode == 200) {
+        musicList = value.data['posts'].map<MusicModel>((item) {
+          return MusicModel.fromJson(item);
+        }).toList();
+      } else {
+        debugPrint("get posts status code is ${value.statusCode}");
+        musicList = [];
+      }
+    });
+    return musicList;
+  }
 }

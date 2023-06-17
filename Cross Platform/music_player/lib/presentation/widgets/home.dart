@@ -5,6 +5,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/business_logic/music/music_cubit.dart';
 import 'package:music_player/business_logic/music/play_pause_cubit.dart';
 import 'package:music_player/data/model/music_model.dart';
+import 'package:music_player/data/model/user_model.dart';
 import 'package:music_player/presentation/widgets/audio/progressbar.dart';
 import 'package:music_player/presentation/widgets/left_navbar.dart';
 import 'package:rxdart/rxdart.dart';
@@ -67,6 +68,10 @@ class _HomeWidgetState extends State<HomeWidget> {
     BlocProvider.of<MusicCubit>(context).like(postId);
   }
 
+  void delete(postId) {
+    BlocProvider.of<MusicCubit>(context).delete(postId);
+  }
+
   Widget card(MusicModel item) {
     return SizedBox(
       height: 115,
@@ -76,44 +81,56 @@ class _HomeWidgetState extends State<HomeWidget> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Image.network(
-                    item.imageUrl!,
-                    width: 88,
-                    height: 88,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Row(
                   children: [
-                    const SizedBox(height: 10),
-                    Text(item.musicTitle!,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
-                    // const SizedBox(height: 5),
-                    Text(item.musicSinger!,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey)),
-                    // const SizedBox(height: 7),
-                    Text("${item.likes!} likes"),
-                    // const SizedBox(height: 5),
-                    IconButton(
-                      highlightColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      splashRadius: 0.1,
-                      onPressed: () => like(item.id!),
-                      icon: Icon(Icons.favorite,
-                          color: item.isLiked! ? Colors.red : Colors.black,
-                          size: 20),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Image.network(
+                        item.imageUrl!,
+                        width: 88,
+                        height: 88,
+                      ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(height: 10),
+                        Text(item.musicTitle!,
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold)),
+                        // const SizedBox(height: 5),
+                        Text(item.musicSinger!,
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey)),
+                        // const SizedBox(height: 7),
+                        Text("${item.likes!} likes"),
+                        // const SizedBox(height: 5),
+                        IconButton(
+                          highlightColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          splashRadius: 0.1,
+                          onPressed: () => like(item.id!),
+                          icon: Icon(Icons.favorite,
+                              color: item.isLiked! ? Colors.red : Colors.black,
+                              size: 20),
+                        ),
+                        const SizedBox(height: 5),
+                      ],
+                    )
                   ],
-                )
+                ),
+                UserData.user!.userId == item.creatorId
+                    ? IconButton(
+                        onPressed: () => delete(item.id),
+                        splashRadius: 2,
+                        icon: const Icon(Icons.delete_outline))
+                    : Container()
               ],
             ),
           ),

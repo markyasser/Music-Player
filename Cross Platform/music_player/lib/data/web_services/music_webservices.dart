@@ -54,6 +54,19 @@ class MusicWebService {
     }
   }
 
+  Future delete(String postId) async {
+    try {
+      var res = await dio.delete('feed/post/$postId',
+          options: Options(headers: {
+            'Authorization': 'Bearer ${UserData.user!.token}',
+          }));
+      return res;
+    } catch (e) {
+      debugPrint("from delete post $postId $e");
+      return e;
+    }
+  }
+
   Future uploadMusic(
       String title, String creator, Uint8List img, Uint8List audio) async {
     try {

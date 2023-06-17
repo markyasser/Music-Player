@@ -48,6 +48,7 @@ exports.getPosts = (req, res, next) => {
           content: post.content,
           imageUrl: post.imageUrl,
           musicUrl: post.musicUrl,
+          creatorId: post.creator,
           likes: post.likes,
           isLiked: isLiked,
         }; // Add the isLiked boolean to the post object
@@ -84,6 +85,7 @@ exports.getLikePosts = (req, res, next) => {
               content: post.content,
               imageUrl: post.imageUrl,
               musicUrl: post.musicUrl,
+              creatorId: post.creator,
               likes: post.likes,
               isLiked: isLiked,
             }; // Add the isLiked boolean to the post object
@@ -310,7 +312,44 @@ exports.deletePost = (req, res, next) => {
       return user.save();
     })
     .then((result) => {
-      res.status(200).json({ message: "Deleted post." });
+      const currentPage = req.query.page || 1;
+      const userId = req.userId;
+      const perPage = 8;
+      let totalItems;
+      Post.find()
+        .countDocuments()
+        .then((count) => {
+          totalItems = count;
+          return Post.find()
+            .skip((currentPage - 1) * perPage)
+            .limit(perPage);
+        })
+        .then((posts) => {
+          const updatedPosts = posts.map((post) => {
+            const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
+            return {
+              _id: post._id,
+              title: post.title,
+              content: post.content,
+              imageUrl: post.imageUrl,
+              musicUrl: post.musicUrl,
+              creatorId: post.creator,
+              likes: post.likes,
+              isLiked: isLiked,
+            }; // Add the isLiked boolean to the post object
+          });
+          res.status(200).json({
+            message: "Fetched posts successfully.",
+            posts: updatedPosts,
+            totalItems: totalItems,
+          });
+        })
+        .catch((err) => {
+          if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          next(err);
+        });
     })
     .catch((err) => {
       if (!err.statusCode) {

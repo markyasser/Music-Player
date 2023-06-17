@@ -43,6 +43,18 @@ class MusicCubit extends Cubit<MusicState> {
     });
   }
 
+  void delete(String postId) async {
+    if (isClosed) return;
+    emit(DeleteLoading());
+    musicRepo.delete(postId).then((value) {
+      if (value != null) {
+        emit(MusicLoaded(value));
+      } else {
+        emit(DeleteFailed());
+      }
+    });
+  }
+
   void upload(
       String title, String creator, Uint8List? img, Uint8List? audio) async {
     if (isClosed) return;
