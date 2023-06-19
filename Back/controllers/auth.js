@@ -31,7 +31,7 @@ exports.signup = (req, res, next) => {
           email: result.email,
           userId: result._id.toString(),
         },
-        "somesupersecretsecret",
+        process.env.SECRET_KEY,
         { expiresIn: "30d" }
       );
       res.status(201).json({
@@ -75,7 +75,7 @@ exports.login = (req, res, next) => {
           email: loadedUser.email,
           userId: loadedUser._id.toString(),
         },
-        "somesupersecretsecret",
+        process.env.S,
         { expiresIn: "30d" }
       );
       res.status(200).json({

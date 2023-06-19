@@ -1,4 +1,4 @@
-const path = require("path");
+require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -10,20 +10,6 @@ const authRoutes = require("./routes/auth");
 
 const app = express();
 
-const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/jpg" ||
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "audio/mpeg"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-// app.use(bodyParser.urlencoded()); // x-www-form-urlencoded <form>
 app.use(bodyParser.json()); // application/json
 
 app.use(
@@ -55,9 +41,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect(
-    "mongodb+srv://markyasser2011:qogKPZjZt8UQ0yUk@cluster0.51k66c7.mongodb.net/music"
-  )
+  .connect(process.env.DATABASE_URL)
   .then((result) => {
     app.listen(8080);
   })

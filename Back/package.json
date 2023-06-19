@@ -16,10 +16,12 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "dotenv": "^16.3.1",
     "express": "^4.16.3",
     "express-validator": "^5.3.0",
     "firebase": "^9.22.2",
     "firebase-admin": "^11.9.0",
+    "firebase-app": "^0.0.1",
     "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.3.2",
     "multer": "^1.4.0"

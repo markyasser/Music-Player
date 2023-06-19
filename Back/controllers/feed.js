@@ -6,7 +6,6 @@ const {
   getDownloadURL,
   deleteObject,
 } = require("firebase/storage");
-const admin = require("firebase-admin");
 
 const { validationResult } = require("express-validator/check");
 
@@ -14,13 +13,13 @@ const Post = require("../models/post");
 const User = require("../models/user");
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC1Api73r2uHZOSmFDtVIVPXFsYVskjGqE",
-  authDomain: "music-player-6a7d2.firebaseapp.com",
-  projectId: "music-player-6a7d2",
-  storageBucket: "music-player-6a7d2.appspot.com",
-  messagingSenderId: "988528237951",
-  appId: "1:988528237951:web:f9d34bbb36211725e18e4a",
-  measurementId: "G-K24PFJ0T13",
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASURMENT_ID,
 };
 
 const firebase = initializeApp(firebaseConfig);
