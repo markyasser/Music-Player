@@ -1,5 +1,6 @@
 const baseUrl = 'http://localhost:8080/';
-const appUrl = 'https://medics-2d0c7.web.app/';
+const firebaseUrl =
+    'https://firebasestorage.googleapis.com/v0/b/music-player-6a7d2.appspot.com/o/';
 const enableDateBlock = true;
 const enableScreenShots = false;
 DateTime appTimeOut =

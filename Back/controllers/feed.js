@@ -4,10 +4,9 @@ const {
   ref,
   uploadBytes,
   getDownloadURL,
+  deleteObject,
 } = require("firebase/storage");
-
-const fs = require("fs");
-const path = require("path");
+const admin = require("firebase-admin");
 
 const { validationResult } = require("express-validator/check");
 
@@ -23,19 +22,20 @@ const firebaseConfig = {
   appId: "1:988528237951:web:f9d34bbb36211725e18e4a",
   measurementId: "G-K24PFJ0T13",
 };
+
 const firebase = initializeApp(firebaseConfig);
 const defaultStorage = getStorage(firebase);
 
-exports.getPosts = (req, res, next) => {
+function getPosts(req, res, next, select = {}) {
   const currentPage = req.query.page || 1;
   const userId = req.userId;
   const perPage = 8;
   let totalItems;
-  Post.find()
+  Post.find(select)
     .countDocuments()
     .then((count) => {
       totalItems = count;
-      return Post.find()
+      return Post.find(select)
         .skip((currentPage - 1) * perPage)
         .limit(perPage);
     })
@@ -65,50 +65,17 @@ exports.getPosts = (req, res, next) => {
       }
       next(err);
     });
+}
+
+exports.getPosts = (req, res, next) => {
+  getPosts(req, res, next, {});
 };
 exports.getLikePosts = (req, res, next) => {
-  const currentPage = req.query.page || 1;
   const userId = req.userId;
-  const perPage = 2;
-  let totalItems;
-  User.findById(userId)
-    .then((user) => {
-      const likedPostIds = user.likedPosts; // Get the array of liked post IDs from the user object
-
-      return Post.find({ _id: { $in: likedPostIds } }) // Find posts where the _id field is in the likedPostIds array
-        .then((posts) => {
-          const updatedPosts = posts.map((post) => {
-            const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
-            return {
-              _id: post._id,
-              title: post.title,
-              content: post.content,
-              imageUrl: post.imageUrl,
-              musicUrl: post.musicUrl,
-              creatorId: post.creator,
-              likes: post.likes,
-              isLiked: isLiked,
-            }; // Add the isLiked boolean to the post object
-          });
-          res.status(200).json({
-            message: "Fetched posts successfully.",
-            posts: updatedPosts,
-            totalItems: totalItems,
-          });
-        })
-        .catch((err) => {
-          if (!err.statusCode) {
-            err.statusCode = 500;
-          }
-          next(err);
-        });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
+  User.findById(userId).then((user) => {
+    const likedPostIds = user.likedPosts; // Get the array of liked post IDs from the user object
+    getPosts(req, res, next, { _id: { $in: likedPostIds } });
+  });
 };
 
 exports.createPost = (req, res, next) => {
@@ -127,13 +94,14 @@ exports.createPost = (req, res, next) => {
   // -----------Upload to Firebase-----------
   const image = req.files["image"][0];
   const audio = req.files["audio"][0];
+  const time = new Date().toISOString();
   const storageImageRef = ref(
     defaultStorage,
-    `images/${new Date().toISOString() + "-" + image.originalname}`
+    `images/${time + "-" + image.originalname}`
   );
   const storageAudioRef = ref(
     defaultStorage,
-    `music/${new Date().toISOString() + "-" + audio.originalname}`
+    `music/${time + "-" + audio.originalname}`
   );
   const imagemetaData = { contentType: image.mimetype };
   const audiometaData = { contentType: audio.mimetype };
@@ -156,8 +124,8 @@ exports.createPost = (req, res, next) => {
           const post = new Post({
             title: title,
             content: content,
-            imageUrl: imgUrl,
-            musicUrl: musicUrl,
+            imageUrl: `images/${time + "-" + image.originalname}`,
+            musicUrl: `music/${time + "-" + audio.originalname}`,
             likes: 0,
             creator: req.userId,
           });
@@ -288,6 +256,7 @@ exports.updatePost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
   const postId = req.params.postId;
+  let deletedPost;
   Post.findById(postId)
     .then((post) => {
       if (!post) {
@@ -300,10 +269,11 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 403;
         throw error;
       }
-      // Check logged in user
-      clearImage(post.imageUrl);
-      return Post.findByIdAndRemove(postId);
+      deletedPost = post;
+      return clearFile(post.musicUrl);
     })
+    .then((result) => clearFile(deletedPost.imageUrl))
+    .then(() => Post.findByIdAndRemove(postId))
     .then((result) => {
       return User.findById(req.userId);
     })
@@ -311,46 +281,7 @@ exports.deletePost = (req, res, next) => {
       user.posts.pull(postId);
       return user.save();
     })
-    .then((result) => {
-      const currentPage = req.query.page || 1;
-      const userId = req.userId;
-      const perPage = 8;
-      let totalItems;
-      Post.find()
-        .countDocuments()
-        .then((count) => {
-          totalItems = count;
-          return Post.find()
-            .skip((currentPage - 1) * perPage)
-            .limit(perPage);
-        })
-        .then((posts) => {
-          const updatedPosts = posts.map((post) => {
-            const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
-            return {
-              _id: post._id,
-              title: post.title,
-              content: post.content,
-              imageUrl: post.imageUrl,
-              musicUrl: post.musicUrl,
-              creatorId: post.creator,
-              likes: post.likes,
-              isLiked: isLiked,
-            }; // Add the isLiked boolean to the post object
-          });
-          res.status(200).json({
-            message: "Fetched posts successfully.",
-            posts: updatedPosts,
-            totalItems: totalItems,
-          });
-        })
-        .catch((err) => {
-          if (!err.statusCode) {
-            err.statusCode = 500;
-          }
-          next(err);
-        });
-    })
+    .then((result) => getPosts(req, res, next, {}))
     .catch((err) => {
       if (!err.statusCode) {
         err.statusCode = 500;
@@ -359,10 +290,10 @@ exports.deletePost = (req, res, next) => {
     });
 };
 
-const clearImage = (filePath) => {
-  filePath = path.join(__dirname, "..", filePath);
-  fs.unlink(filePath, (err) => console.log(err));
-};
+function clearFile(refPath) {
+  const storageRef = ref(defaultStorage, refPath);
+  return deleteObject(storageRef);
+}
 
 exports.likePost = (req, res, next) => {
   const postId = req.params.postId;
@@ -404,45 +335,7 @@ exports.likePost = (req, res, next) => {
           }
           user.save();
         })
-        .then(() => {
-          const currentPage = req.query.page || 1;
-          const userId = req.userId;
-          const perPage = 8;
-          let totalItems;
-          Post.find()
-            .countDocuments()
-            .then((count) => {
-              totalItems = count;
-              return Post.find()
-                .skip((currentPage - 1) * perPage)
-                .limit(perPage);
-            })
-            .then((posts) => {
-              const updatedPosts = posts.map((post) => {
-                const isLiked = post.likers.includes(userId); // Check if the post is liked by the user
-                return {
-                  _id: post._id,
-                  title: post.title,
-                  content: post.content,
-                  imageUrl: post.imageUrl,
-                  musicUrl: post.musicUrl,
-                  likes: post.likes,
-                  isLiked: isLiked,
-                }; // Add the isLiked boolean to the post object
-              });
-              res.status(200).json({
-                message: "Fetched posts successfully.",
-                posts: updatedPosts,
-                totalItems: totalItems,
-              });
-            })
-            .catch((err) => {
-              if (!err.statusCode) {
-                err.statusCode = 500;
-              }
-              next(err);
-            });
-        });
+        .then(() => getPosts(req, res, next, {}));
     })
     .catch((err) => {
       if (!err.statusCode) {
