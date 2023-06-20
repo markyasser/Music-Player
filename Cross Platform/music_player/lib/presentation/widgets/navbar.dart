@@ -110,7 +110,14 @@ class NavBar extends StatelessWidget {
             padding: const EdgeInsets.all(5),
             child: Row(
               children: [
-                const CircleAvatar(radius: 15, child: Icon(Icons.person)),
+                CircleAvatar(
+                    radius: 15,
+                    backgroundImage: UserData.user!.profilePicture == ''
+                        ? null
+                        : NetworkImage(UserData.user!.profilePicture!),
+                    child: UserData.user!.profilePicture == ''
+                        ? const Icon(Icons.person)
+                        : null),
                 const SizedBox(width: 5),
                 Text(
                   UserData.user!.username!,
