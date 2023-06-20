@@ -1,17 +1,32 @@
+const { initializeApp } = require("firebase/app");
+const {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} = require("firebase/storage");
+
 const { validationResult } = require("express-validator/check");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 
-exports.signup = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed.");
-    error.statusCode = 422;
-    error.data = errors.array();
-    throw error;
-  }
+const firebaseConfig = {
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASURMENT_ID,
+};
+
+const firebase = initializeApp(firebaseConfig);
+const defaultStorage = getStorage(firebase);
+
+function createUser(req, res, next, imgUrl) {
   const email = req.body.email;
   const name = req.body.name;
   const password = req.body.password;
@@ -22,6 +37,7 @@ exports.signup = (req, res, next) => {
         email: email,
         password: hashedPw,
         name: name,
+        profile: imgUrl,
       });
       return user.save();
     })
@@ -32,12 +48,13 @@ exports.signup = (req, res, next) => {
           userId: result._id.toString(),
         },
         process.env.SECRET_KEY,
-        { expiresIn: "30d" }
+        { expiresIn: process.env.TOKEN_EXPIRE }
       );
       res.status(201).json({
         username: result.name,
-        userId: loadedUser._id.toString(),
-        likedPosts: loadedUser.likedPosts,
+        userId: result._id.toString(),
+        likedPosts: result.likedPosts,
+        profile: result.profile,
         token: token,
         message: "success",
       });
@@ -48,6 +65,33 @@ exports.signup = (req, res, next) => {
       }
       next(err);
     });
+}
+
+exports.signup = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new Error("Validation failed.");
+    error.statusCode = 422;
+    error.data = errors.array();
+    throw error;
+  }
+  // -----------Upload profile photo to Firebase-----------
+  if (req.files) {
+    const image = req.files["image"][0];
+    const time = new Date().toISOString();
+    const storageImageRef = ref(
+      defaultStorage,
+      `profile/${time + "-" + image.originalname}`
+    );
+    const imagemetaData = { contentType: image.mimetype };
+    uploadBytes(storageImageRef, image.buffer, imagemetaData)
+      .then((snapshot) => getDownloadURL(snapshot.ref))
+      .then((imgUrl) => {
+        createUser(req, res, next, imgUrl);
+      });
+  } else {
+    createUser(req, res, next, "");
+  }
 };
 
 exports.login = (req, res, next) => {
@@ -76,12 +120,13 @@ exports.login = (req, res, next) => {
           userId: loadedUser._id.toString(),
         },
         process.env.SECRET_KEY,
-        { expiresIn: "30d" }
+        { expiresIn: process.env.TOKEN_EXPIRE }
       );
       res.status(200).json({
         username: loadedUser.name,
         userId: loadedUser._id.toString(),
         likedPosts: loadedUser.likedPosts,
+        profile: loadedUser.profile,
         token: token,
         message: "success",
       });
@@ -106,6 +151,7 @@ exports.getUserData = (req, res, next) => {
           username: user.name,
           userId: user._id.toString(),
           likedPosts: user.likedPosts,
+          profile: user.profile,
           message: "success",
         });
       }
@@ -117,3 +163,54 @@ exports.getUserData = (req, res, next) => {
       next(err);
     });
 };
+exports.changeProfilePicture = (req, res, next) => {
+  User.findById(req.userId)
+    .then((user) => {
+      if (!user) {
+        const error = new Error("Unauthorized access.");
+        error.statusCode = 401;
+        throw error;
+      } else {
+        // delete old image from firebase if exists
+        if (user.profile !== "") {
+          clearFile(user.profile);
+        }
+        return user;
+      }
+    })
+    .then((user) => {
+      // upload the new image to firebase
+      const image = req.files["image"][0];
+      const time = new Date().toISOString();
+      const storageImageRef = ref(
+        defaultStorage,
+        `profile/${time + "-" + image.originalname}`
+      );
+      const imagemetaData = { contentType: image.mimetype };
+
+      uploadBytes(storageImageRef, image.buffer, imagemetaData)
+        .then((snapshot) => getDownloadURL(snapshot.ref))
+        .then((imgUrl) => {
+          user.profile = imgUrl;
+          user.save();
+          res.status(200).json({
+            username: user.name,
+            userId: user._id.toString(),
+            likedPosts: user.likedPosts,
+            profile: user.profile,
+            message: "success",
+          });
+        });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
+
+function clearFile(refPath) {
+  const storageRef = ref(defaultStorage, refPath);
+  return deleteObject(storageRef);
+}

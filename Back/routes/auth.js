@@ -29,5 +29,6 @@ router.put(
 router.post("/login", authController.login);
 
 router.get("/user", isAuth, authController.getUserData);
+router.patch("/profile_picture", isAuth, authController.changeProfilePicture);
 
 module.exports = router;
