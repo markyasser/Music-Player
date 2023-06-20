@@ -8,14 +8,41 @@ import 'package:music_player/data/model/music_model.dart';
 import 'package:music_player/presentation/widgets/audio/controller.dart';
 import 'package:music_player/presentation/widgets/home.dart';
 
-class ProgressBarWidget extends StatelessWidget {
+class ProgressBarWidget extends StatefulWidget {
   final Stream<PositionData> positionDataStream;
   final AudioPlayer audioPlayer;
+
   const ProgressBarWidget({
     super.key,
     required this.positionDataStream,
     required this.audioPlayer,
   });
+
+  @override
+  State<ProgressBarWidget> createState() => _ProgressBarWidgetState();
+}
+
+class _ProgressBarWidgetState extends State<ProgressBarWidget> {
+  Widget volumeBar() {
+    return SizedBox(
+      width: 150,
+      child: SliderTheme(
+        data: const SliderThemeData(
+          trackHeight: 1,
+          thumbShape: RoundSliderThumbShape(
+              enabledThumbRadius: 5, disabledThumbRadius: 5),
+        ),
+        child: Slider(
+            thumbColor: Colors.white,
+            activeColor: Colors.white,
+            inactiveColor: Colors.grey,
+            value: widget.audioPlayer.volume,
+            onChanged: (value) => setState(() {
+                  widget.audioPlayer.setVolume(value);
+                })),
+      ),
+    );
+  }
 
   Widget progressBar(MusicModel music) {
     return Container(
@@ -26,7 +53,7 @@ class ProgressBarWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           StreamBuilder<SequenceState?>(
-              stream: audioPlayer.sequenceStateStream,
+              stream: widget.audioPlayer.sequenceStateStream,
               builder: (context, snapshot) {
                 final state = snapshot.data;
                 if (state?.sequence.isEmpty ?? true) return const SizedBox();
@@ -40,6 +67,7 @@ class ProgressBarWidget extends StatelessWidget {
                         metadata.artUri.toString(),
                         width: 50,
                         height: 50,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(width: 15),
@@ -62,11 +90,11 @@ class ProgressBarWidget extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  Controls(audioPlayer: audioPlayer, music: music),
+                  Controls(audioPlayer: widget.audioPlayer, music: music),
                   SizedBox(
                     width: 400,
                     child: StreamBuilder<PositionData>(
-                        stream: positionDataStream,
+                        stream: widget.positionDataStream,
                         builder: (context, snapshot) {
                           final positionData = snapshot.data;
                           return ProgressBar(
@@ -81,15 +109,31 @@ class ProgressBarWidget extends StatelessWidget {
                               total: positionData?.duration ?? Duration.zero,
                               buffered: positionData?.bufferedPosition ??
                                   Duration.zero,
-                              onSeek: (value) => audioPlayer.seek(value));
+                              onSeek: (value) =>
+                                  widget.audioPlayer.seek(value));
                         }),
                   ),
                 ],
               ),
               const SizedBox(width: 20),
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.volume_up, color: Colors.white))
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        widget.audioPlayer
+                            .setVolume(widget.audioPlayer.volume == 0 ? 1 : 0);
+                      });
+                    },
+                    child: Icon(
+                        widget.audioPlayer.volume == 0
+                            ? Icons.volume_off_outlined
+                            : Icons.volume_up,
+                        color: Colors.white),
+                  ),
+                  volumeBar()
+                ],
+              )
             ],
           ),
           const SizedBox(width: 140),

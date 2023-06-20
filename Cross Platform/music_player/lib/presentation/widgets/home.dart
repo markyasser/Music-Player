@@ -120,6 +120,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                         item.imageUrl!,
                         width: 88,
                         height: 88,
+                        fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -233,7 +234,7 @@ class _HomeWidgetState extends State<HomeWidget> {
                       : const Expanded(
                           flex: 10,
                           child: Center(
-                              child: Text('Liked Music List is Empty',
+                              child: Text('Music List is Empty',
                                   style: TextStyle(
                                       fontSize: 23,
                                       fontWeight: FontWeight.bold)))),

@@ -1,6 +1,6 @@
 const baseUrl = 'http://localhost:8080/';
-const firebaseUrl =
-    'https://firebasestorage.googleapis.com/v0/b/music-player-6a7d2.appspot.com/o/';
+// const firebaseUrl =
+//     'https://console.firebase.google.com/project/music-player-6a7d2/storage/music-player-6a7d2.appspot.com/files/';
 const enableDateBlock = true;
 const enableScreenShots = false;
 DateTime appTimeOut =

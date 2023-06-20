@@ -123,8 +123,8 @@ exports.createPost = (req, res, next) => {
           const post = new Post({
             title: title,
             content: content,
-            imageUrl: `images/${time + "-" + image.originalname}`,
-            musicUrl: `music/${time + "-" + audio.originalname}`,
+            imageUrl: imgUrl,
+            musicUrl: musicUrl  ,
             likes: 0,
             creator: req.userId,
           });
@@ -278,6 +278,7 @@ exports.deletePost = (req, res, next) => {
     })
     .then((user) => {
       user.posts.pull(postId);
+      user.likedPosts.pull(postId);
       return user.save();
     })
     .then((result) => getPosts(req, res, next, {}))

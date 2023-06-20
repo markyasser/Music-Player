@@ -1,3 +1,5 @@
+import 'package:music_player/constants/strings.dart';
+
 class MusicModel {
   String? id;
   String? creatorId;
