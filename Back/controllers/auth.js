@@ -10,6 +10,8 @@ const {
 const { validationResult } = require("express-validator/check");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const sendgridTransport = require("nodemailer-sendgrid-transport");
 
 const User = require("../models/user");
 
@@ -25,6 +27,14 @@ const firebaseConfig = {
 
 const firebase = initializeApp(firebaseConfig);
 const defaultStorage = getStorage(firebase);
+
+const transporter = nodemailer.createTransport(
+  sendgridTransport({
+    auth: {
+      api_key: process.env.SENDGRID_KEY,
+    },
+  })
+);
 
 function createUser(req, res, next, imgUrl) {
   const email = req.body.email;
@@ -50,14 +60,23 @@ function createUser(req, res, next, imgUrl) {
         process.env.SECRET_KEY,
         { expiresIn: process.env.TOKEN_EXPIRE }
       );
-      res.status(201).json({
-        username: result.name,
-        userId: result._id.toString(),
-        likedPosts: result.likedPosts,
-        profile: result.profile,
-        token: token,
-        message: "success",
-      });
+      transporter
+        .sendMail({
+          to: email,
+          from: process.env.SENDGRID_SENDER,
+          subject: "Signup succeeded!",
+          html: "<h1>You successfully signed up!</h1>",
+        })
+        .then(() => {
+          res.status(201).json({
+            username: result.name,
+            userId: result._id.toString(),
+            likedPosts: result.likedPosts,
+            profile: result.profile,
+            token: token,
+            message: "success",
+          });
+        });
     })
     .catch((err) => {
       if (!err.statusCode) {
