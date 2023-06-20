@@ -1,9 +1,13 @@
 require("dotenv").config();
 
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const helmet = require("helmet");
+const morgan = require("morgan");
 
 const feedRoutes = require("./routes/feed");
 const authRoutes = require("./routes/auth");
@@ -29,6 +33,13 @@ app.use((req, res, next) => {
   next();
 });
 
+const accessLogStream = fs.createWriteStream(
+  path.join(__dirname, "access.log"),
+  { flags: "a" }
+);
+
+app.use(helmet());
+app.use(morgan("combined", { stream: accessLogStream }));
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
 
@@ -43,6 +54,6 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(process.env.DATABASE_URL)
   .then((result) => {
-    app.listen(8080);
+    app.listen(process.env.PORT || 8080);
   })
   .catch((err) => console.log(err));
