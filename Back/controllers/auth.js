@@ -36,55 +36,51 @@ const transporter = nodemailer.createTransport(
   })
 );
 
-function createUser(req, res, next, imgUrl) {
+const createUser = async (req, res, next, imgUrl) => {
   const email = req.body.email;
   const name = req.body.name;
   const password = req.body.password;
-  bcrypt
-    .hash(password, 12)
-    .then((hashedPw) => {
-      const user = new User({
-        email: email,
-        password: hashedPw,
-        name: name,
-        profile: imgUrl,
-      });
-      return user.save();
-    })
-    .then((result) => {
-      const token = jwt.sign(
-        {
-          email: result.email,
-          userId: result._id.toString(),
-        },
-        process.env.SECRET_KEY,
-        { expiresIn: process.env.TOKEN_EXPIRE }
-      );
-      transporter
-        .sendMail({
-          to: email,
-          from: process.env.SENDGRID_SENDER,
-          subject: "Signup succeeded!",
-          html: "<h1>You successfully signed up!</h1>",
-        })
-        .then(() => {
-          res.status(201).json({
-            username: result.name,
-            userId: result._id.toString(),
-            likedPosts: result.likedPosts,
-            profile: result.profile,
-            token: token,
-            message: "success",
-          });
-        });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+  try {
+    const hashedPw = await bcrypt.hash(password, 12);
+    const user = new User({
+      email: email,
+      password: hashedPw,
+      name: name,
+      profile: imgUrl,
     });
-}
+    const result = await user.save();
+    const token = jwt.sign(
+      {
+        email: result.email,
+        userId: result._id.toString(),
+      },
+      process.env.SECRET_KEY,
+      { expiresIn: process.env.TOKEN_EXPIRE }
+    );
+    transporter
+      .sendMail({
+        to: email,
+        from: process.env.SENDGRID_SENDER,
+        subject: "Signup succeeded!",
+        html: "<h1>You successfully signed up!</h1>",
+      })
+      .then(() => {
+        res.status(201).json({
+          username: result.name,
+          userId: result._id.toString(),
+          likedPosts: result.likedPosts,
+          profile: result.profile,
+          token: token,
+          message: "success",
+        });
+      });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 
 exports.signup = (req, res, next) => {
   const errors = validationResult(req);
@@ -113,74 +109,78 @@ exports.signup = (req, res, next) => {
   }
 };
 
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
   const username = req.body.name;
   const password = req.body.password;
   let loadedUser;
-  User.findOne({ name: { $regex: new RegExp(username, "i") } })
-    .then((user) => {
-      if (!user) {
-        const error = new Error("A user with this email could not be found.");
-        error.statusCode = 401;
-        throw error;
-      }
-      loadedUser = user;
-      return bcrypt.compare(password, user.password);
-    })
-    .then((isEqual) => {
-      if (!isEqual) {
-        const error = new Error("Wrong password!");
-        error.statusCode = 401;
-        throw error;
-      }
-      const token = jwt.sign(
-        {
-          email: loadedUser.email,
-          userId: loadedUser._id.toString(),
-        },
-        process.env.SECRET_KEY,
-        { expiresIn: process.env.TOKEN_EXPIRE }
-      );
-      res.status(200).json({
-        username: loadedUser.name,
-        userId: loadedUser._id.toString(),
-        likedPosts: loadedUser.likedPosts,
-        profile: loadedUser.profile,
-        token: token,
-        message: "success",
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+  try {
+    const user = await User.findOne({
+      name: { $regex: new RegExp(username, "i") },
     });
+
+    if (!user) {
+      const error = new Error("A user with this username could not be found.");
+      error.statusCode = 401;
+      throw error;
+    }
+    loadedUser = user;
+    const isEqual = await bcrypt.compare(password, user.password);
+
+    if (!isEqual) {
+      const error = new Error("Wrong password!");
+      error.statusCode = 401;
+      throw error;
+    }
+    const token = jwt.sign(
+      {
+        email: loadedUser.email,
+        userId: loadedUser._id.toString(),
+      },
+      process.env.SECRET_KEY,
+      { expiresIn: process.env.TOKEN_EXPIRE }
+    );
+    res.status(200).json({
+      username: loadedUser.name,
+      userId: loadedUser._id.toString(),
+      likedPosts: loadedUser.likedPosts,
+      profile: loadedUser.profile,
+      token: token,
+      message: "success",
+    });
+    return;
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+    return err;
+  }
 };
 
-exports.getUserData = (req, res, next) => {
-  User.findById(req.userId)
-    .then((user) => {
-      if (!user) {
-        const error = new Error("Unauthorized access.");
-        error.statusCode = 401;
-        throw error;
-      } else {
-        res.status(200).json({
-          username: user.name,
-          userId: user._id.toString(),
-          likedPosts: user.likedPosts,
-          profile: user.profile,
-          message: "success",
-        });
-      }
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
+exports.getUserData = async (req, res, next) => {
+  const user = await User.findById(req.userId);
+  try {
+    if (!user) {
+      const error = new Error("Unauthorized access.");
+      error.statusCode = 401;
+      throw error;
+    } else {
+      res.status(200).json({
+        username: user.name,
+        userId: user._id.toString(),
+        likedPosts: user.likedPosts,
+        profile: user.profile,
+        message: "success",
+      });
+      return;
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+    return err;
+  }
 };
 exports.changeProfilePicture = (req, res, next) => {
   User.findById(req.userId)

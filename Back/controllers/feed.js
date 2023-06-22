@@ -77,7 +77,7 @@ exports.getLikePosts = (req, res, next) => {
   });
 };
 
-exports.createPost = (req, res, next) => {
+exports.createPost = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const error = new Error("Validation failed, entered data is incorrect.");
@@ -104,69 +104,72 @@ exports.createPost = (req, res, next) => {
   );
   const imagemetaData = { contentType: image.mimetype };
   const audiometaData = { contentType: audio.mimetype };
-  // Upload file and metadata
-  uploadBytes(storageImageRef, image.buffer, imagemetaData)
-    .then((snapshot) => {
-      // Get the download URL
+  // Upload image file
+  let musicUrl, imgUrl;
+
+  try {
+    imgUrl = await uploadBytes(
+      storageImageRef,
+      image.buffer,
+      imagemetaData
+    ).then((snapshot) => {
       return getDownloadURL(snapshot.ref);
-    })
-    .then((imgUrl) => {
-      uploadBytes(storageAudioRef, audio.buffer, audiometaData)
-        .then((snapshot) => {
-          // Get the download URL
-          return getDownloadURL(snapshot.ref);
-        })
-        .then((musicUrl) => {
-          const title = req.body.title;
-          const content = req.body.content;
-          let creator;
-          const post = new Post({
-            title: title,
-            content: content,
-            imageUrl: imgUrl,
-            musicUrl: musicUrl  ,
-            likes: 0,
-            creator: req.userId,
-          });
-          post
-            .save()
-            .then((result) => {
-              return User.findById(req.userId);
-            })
-            .then((user) => {
-              creator = user;
-              user.posts.push(post);
-              return user.save();
-            })
-            .then((result) => {
-              res.status(201).json({
-                message: "success",
-                post: {
-                  _id: post._id,
-                  title: post.title,
-                  content: post.content,
-                  imageUrl: post.imageUrl,
-                  musicUrl: post.musicUrl,
-                  likes: post.likes,
-                  isLiked: false,
-                },
-                creator: { _id: creator._id, name: creator.name },
-              });
-            });
-        })
-        .catch((err) => {
-          if (!err.statusCode) {
-            err.statusCode = 500;
-          }
-          next(err);
-        });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+  }
+  try {
+    // Upload audio file
+    musicUrl = await uploadBytes(
+      storageAudioRef,
+      audio.buffer,
+      audiometaData
+    ).then((snapshot) => {
+      return getDownloadURL(snapshot.ref);
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+  }
+  const title = req.body.title;
+  const content = req.body.content;
+  let creator;
+  try {
+    const post = new Post({
+      title: title,
+      content: content,
+      imageUrl: imgUrl,
+      musicUrl: musicUrl,
+      likes: 0,
+      creator: req.userId,
+    });
+    await post.save();
+    const user = await User.findById(req.userId);
+    user.posts.push(post);
+    const savedUser = await user.save();
+    res.status(201).json({
+      message: "success",
+      post: {
+        _id: post._id,
+        title: post.title,
+        content: post.content,
+        imageUrl: post.imageUrl,
+        musicUrl: post.musicUrl,
+        likes: post.likes,
+        isLiked: false,
+      },
+      creator: { _id: creator._id, name: creator.name },
+    });
+    return savedUser;
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
 exports.getPost = (req, res, next) => {
