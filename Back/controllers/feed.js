@@ -161,7 +161,7 @@ exports.createPost = async (req, res, next) => {
         likes: post.likes,
         isLiked: false,
       },
-      creator: { _id: creator._id, name: creator.name },
+      creator: { _id: user._id, name: user.name },
     });
     return savedUser;
   } catch (err) {

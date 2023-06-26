@@ -1,11 +1,7 @@
-// const baseUrl = 'http://localhost:8080/';
-const baseUrl = 'https://music-player-markyasser.onrender.com/';
+const baseUrl = 'http://localhost:8080/';
+// const baseUrl = 'https://music-player-markyasser.onrender.com/';
 // const firebaseUrl =
 //     'https://console.firebase.google.com/project/music-player-6a7d2/storage/music-player-6a7d2.appspot.com/files/';
-const enableDateBlock = true;
-const enableScreenShots = false;
-DateTime appTimeOut =
-    DateTime(2023, 6, 20); // after this date, the app won't work
 
 const homePageRoute = '/home';
 const loginRoute = '/login';
