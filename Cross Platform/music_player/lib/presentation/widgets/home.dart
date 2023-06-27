@@ -1,5 +1,10 @@
+import 'dart:html';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/business_logic/music/music_cubit.dart';
@@ -33,6 +38,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   String currentPLayingUrl = "";
   Duration pausedDuration = Duration.zero;
   MusicModel? currentPLaying;
+  List<MusicModel> currmusicList = [];
 
   late ConcatenatingAudioSource playlist;
 
@@ -193,109 +199,67 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
+  Widget content() {
+    int i = -1;
+    if (currmusicList.isNotEmpty) {
+      playlist = ConcatenatingAudioSource(
+          children: currmusicList.map((item) {
+        return AudioSource.uri(Uri.parse(item.musicUrl!),
+            tag: MediaItem(
+                id: i.toString(),
+                title: item.musicTitle!,
+                artist: item.musicSinger!,
+                artUri: Uri.parse(item.imageUrl!)));
+      }).toList());
+
+      _init();
+    }
+    i = 0;
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Row(
+          children: [
+            const Expanded(flex: 1, child: LeftNavBar()),
+            currmusicList.isNotEmpty
+                ? Expanded(
+                    flex: 10,
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: currmusicList.map((item) {
+                            return musicCardInstance(item, i++);
+                          }).toList(),
+                        ),
+                      ),
+                    ))
+                : const Expanded(
+                    flex: 10,
+                    child: Center(
+                        child: Text('Music List is Empty',
+                            style: TextStyle(
+                                fontSize: 23, fontWeight: FontWeight.bold)))),
+          ],
+        ),
+        ProgressBarWidget(
+            positionDataStream: _positionDataStream, audioPlayer: _audioPlayer),
+      ],
+    );
+  }
+
   Widget homeBody() {
     return BlocBuilder<MusicCubit, MusicState>(
       builder: (context, state) {
         if (state is MusicLoaded) {
-          int i = -1;
-          if (state.musicList.isNotEmpty) {
-            playlist = ConcatenatingAudioSource(
-                children: state.musicList.map((item) {
-              return AudioSource.uri(Uri.parse(item.musicUrl!),
-                  tag: MediaItem(
-                      id: i.toString(),
-                      title: item.musicTitle!,
-                      artist: item.musicSinger!,
-                      artUri: Uri.parse(item.imageUrl!)));
-            }).toList());
-
-            _init();
-          }
-          i = 0;
-          return Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Row(
-                children: [
-                  const Expanded(flex: 1, child: LeftNavBar()),
-                  state.musicList.isNotEmpty
-                      ? Expanded(
-                          flex: 10,
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: state.musicList.map((item) {
-                                  return musicCardInstance(item, i++);
-                                }).toList(),
-                              ),
-                            ),
-                          ))
-                      : const Expanded(
-                          flex: 10,
-                          child: Center(
-                              child: Text('Music List is Empty',
-                                  style: TextStyle(
-                                      fontSize: 23,
-                                      fontWeight: FontWeight.bold)))),
-                ],
-              ),
-              ProgressBarWidget(
-                  positionDataStream: _positionDataStream,
-                  audioPlayer: _audioPlayer),
-            ],
-          );
+          currmusicList = state.musicList;
+          return content();
         } else if (state is LikeSuccess) {
-          int i = -1;
-          if (state.musicList.isNotEmpty) {
-            playlist = ConcatenatingAudioSource(
-                children: state.musicList.map((item) {
-              i++;
-              return AudioSource.uri(Uri.parse(item.musicUrl!),
-                  tag: MediaItem(
-                      id: i.toString(),
-                      title: item.musicTitle!,
-                      artist: 'Mark',
-                      artUri: Uri.parse(item.imageUrl!)));
-            }).toList());
-
-            _init();
-          }
-          i = 0;
-          return Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Row(
-                children: [
-                  const Expanded(flex: 1, child: LeftNavBar()),
-                  state.musicList.isNotEmpty
-                      ? Expanded(
-                          flex: 10,
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: state.musicList
-                                    .map((item) => musicCardInstance(item, i++))
-                                    .toList(),
-                              ),
-                            ),
-                          ),
-                        )
-                      : const Expanded(
-                          flex: 10,
-                          child: Center(
-                              child: Text('Liked Music List is Empty',
-                                  style: TextStyle(
-                                      fontSize: 23,
-                                      fontWeight: FontWeight.bold)))),
-                ],
-              ),
-              ProgressBarWidget(
-                  positionDataStream: _positionDataStream,
-                  audioPlayer: _audioPlayer),
-            ],
-          );
+          currmusicList = state.musicList;
+          return content();
+        } else if (state is UploadLoading || state is UploadFailed) {
+          currmusicList = [];
+          return content();
         }
         return const Center(child: CircularProgressIndicator());
       },

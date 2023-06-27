@@ -29,6 +29,32 @@ class AuthWebService {
     }
   }
 
+  Future verifyOTP(String userId, String otp) async {
+    try {
+      var res = await dio.post('auth/verifyOTP', data: {
+        'userId': userId,
+        'otp': otp,
+      });
+      return res;
+    } catch (e) {
+      debugPrint("from signup $e");
+      return e;
+    }
+  }
+
+  Future resendOTPverification(String userId, String email) async {
+    try {
+      var res = await dio.post('auth/resendOTPVerification', data: {
+        'userId': userId,
+        'email': email,
+      });
+      return res;
+    } catch (e) {
+      debugPrint("from signup $e");
+      return e;
+    }
+  }
+
   Future login(String password, String email) async {
     try {
       var res = await dio.post('auth/login', data: {

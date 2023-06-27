@@ -7,18 +7,47 @@ class AuthRepository {
   late Map<String, dynamic> user;
   AuthRepository(this.authWebService);
 
-  Future<String?> signup(String password, String username, String email) async {
+  Future<String?> verifyOTP(String userId, String otp) async {
     String? message;
-    await authWebService.signup(password, username, email).then((value) {
+    await authWebService.verifyOTP(userId, otp).then((value) {
       if (value.statusCode == 201) {
         message = value.data['message'];
         UserData.initUser(value.data);
       } else {
-        debugPrint("sign up status code is ${value.statusCode}");
+        debugPrint("verify OTP code status code is ${value.statusCode}");
         message = value.data['message'];
       }
     });
     return message;
+  }
+
+  Future<Map<String, dynamic>?> resendOTPverification(
+      String userId, String email) async {
+    Map<String, dynamic>? res;
+    await authWebService.resendOTPverification(userId, email).then((value) {
+      if (value.statusCode == 201) {
+        res = value.data;
+      } else {
+        debugPrint(
+            "resend verification code status code is ${value.statusCode}");
+        res = value.data;
+      }
+    });
+    return res;
+  }
+
+  Future<Map<String, dynamic>?> signup(
+      String password, String username, String email) async {
+    Map<String, dynamic>? res;
+    await authWebService.signup(password, username, email).then((value) {
+      if (value.statusCode == 201) {
+        res = value.data;
+      } else {
+        debugPrint("sign up status code is ${value.statusCode}");
+        res = value.data;
+      }
+    });
+    return res;
   }
 
   Future<String?> login(String password, String email) async {

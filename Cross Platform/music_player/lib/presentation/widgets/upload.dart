@@ -64,60 +64,107 @@ class _UploadWidgetState extends State<UploadWidget> {
         children: [
           const Text("Upload Music",
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 50),
-          SizedBox(
-            width: 400,
-            child: TextField(
-              controller: musicController,
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(left: 20),
-                hintText: 'Music title',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: 400,
-            child: TextField(
-              controller: creatorController,
-              decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(left: 20),
-                hintText: 'Music creator',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: () => pickImage(),
-                child: const Text('Choose Image'),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50),
+                  Container(
+                    width: 110,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[800],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: imageName == 'No image choosen'
+                          ? const Icon(Icons.person)
+                          : Image.memory(
+                              imageBytes!,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text('  $imageName'),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => pickImage(),
+                    child: const Text('Choose Image'),
+                  ),
+                ],
               ),
-              Text('  $imageName')
+              const SizedBox(width: 16),
+              Column(
+                children: [
+                  const SizedBox(height: 50),
+                  SizedBox(
+                    width: 400,
+                    child: TextField(
+                      controller: musicController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(left: 20),
+                        hintText: 'Music title',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: 400,
+                    child: TextField(
+                      controller: creatorController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.only(left: 20),
+                        hintText: 'Music creator',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => pickFile(),
+                        child: const Text('Choose Audio File'),
+                      ),
+                      const SizedBox(width: 20),
+                      SizedBox(
+                        width: 230,
+                        child: Text(
+                          '  $musicName',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              )
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () => pickFile(),
-                child: const Text('Choose Audio File'),
-              ),
-              Text('  $musicName')
-            ],
+          const SizedBox(height: 20),
+          BlocBuilder<MusicCubit, MusicState>(
+            builder: (context, state) {
+              if (state is UploadFailed) {
+                return Text(state.errorMessage,
+                    style: const TextStyle(fontSize: 17, color: Colors.red));
+              }
+              return const SizedBox();
+            },
           ),
           const SizedBox(height: 40),
           SizedBox(
-            width: 150,
-            height: 40,
+            width: 120,
+            height: 36,
             child: ElevatedButton(
               onPressed: () => submit(),
               style: ElevatedButton.styleFrom(
@@ -143,16 +190,6 @@ class _UploadWidgetState extends State<UploadWidget> {
                 },
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          BlocBuilder<MusicCubit, MusicState>(
-            builder: (context, state) {
-              if (state is UploadFailed) {
-                return Text(state.errorMessage,
-                    style: const TextStyle(fontSize: 19, color: Colors.red));
-              }
-              return const SizedBox();
-            },
           ),
         ],
       ),
