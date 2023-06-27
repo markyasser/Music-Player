@@ -31,3 +31,8 @@
 ::1 - - [26/Jun/2023:09:49:43 +0000] "GET /feed/get_liked HTTP/1.1" 200 67 "http://localhost:63160/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.58"
 ::1 - - [26/Jun/2023:09:49:45 +0000] "OPTIONS /feed/posts HTTP/1.1" 200 8 "http://localhost:63160/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.58"
 ::1 - - [26/Jun/2023:09:49:45 +0000] "GET /feed/posts HTTP/1.1" 304 - "http://localhost:63160/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.58"
+::1 - - [27/Jun/2023:07:34:41 +0000] "POST /test/submit HTTP/1.1" 404 151 "-" "PostmanRuntime/7.32.3"
+::1 - - [27/Jun/2023:07:34:50 +0000] "POST /submit HTTP/1.1" 201 21 "-" "PostmanRuntime/7.32.3"
+::1 - - [27/Jun/2023:07:34:53 +0000] "POST /submit HTTP/1.1" 201 27 "-" "PostmanRuntime/7.32.3"
+::1 - - [27/Jun/2023:07:34:59 +0000] "POST /submit HTTP/1.1" 201 21 "-" "PostmanRuntime/7.32.3"
+::1 - - [27/Jun/2023:07:35:02 +0000] "POST /submit HTTP/1.1" 201 27 "-" "PostmanRuntime/7.32.3"

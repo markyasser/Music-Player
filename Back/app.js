@@ -40,6 +40,20 @@ const accessLogStream = fs.createWriteStream(
 
 app.use(helmet());
 app.use(morgan("combined", { stream: accessLogStream }));
+
+//---this is for temporary use---
+let submissions = [];
+app.post("/submit", (req, res, next) => {
+  const name = req.body.name;
+  if (submissions.includes(name)) {
+    console.log("already exist");
+    return res.status(201).json({ message: "already exist" });
+  }
+  submissions.push(name);
+  console.log(submissions);
+  res.status(201).json({ message: "success" });
+});
+//------------------------------
 app.use("/feed", feedRoutes);
 app.use("/auth", authRoutes);
 
