@@ -9,9 +9,9 @@ This application is used to stream music and add your favorite music to the like
 **Backend**
 
 <div style="display: flex; gap: 10px;">
-  <img src="https://devicon-website.vercel.app/api/nodejs/original-wordmark.svg" width="40" height="40"></img>
-  <img src="https://devicon-website.vercel.app/api/express/original.svg" width="40" height="40"></img>
-  <img src="https://devicon-website.vercel.app/api/mongodb/original-wordmark.svg"  width="40" height="40"></img>
+  <img src="https://devicon-website.vercel.app/api/nodejs/original-wordmark.svg" width="60" height="60"></img>
+  <img src="https://devicon-website.vercel.app/api/express/original-wordmark.svg?color=%23FFFFFF" width="60" height="60"></img>
+  <img src="https://devicon-website.vercel.app/api/mongodb/original-wordmark.svg"  width="60" height="60"></img>
 </div>
 
 **Frontend**
