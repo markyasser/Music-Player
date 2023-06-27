@@ -19,6 +19,8 @@ This application is used to stream music and add your favorite music to the like
 <div style="display: flex; gap: 10px;">
 <img src="https://devicon-website.vercel.app/api/flutter/original.svg" width="40" height="40"></img>
 </div>
+
+
 ## Features
 
 - User authentication
