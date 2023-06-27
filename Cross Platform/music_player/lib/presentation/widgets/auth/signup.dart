@@ -127,7 +127,9 @@ class _SignUpWidgetState extends State<SignUpWidget> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is SignUpSuccessfully) {
-          Navigator.of(context).pushReplacementNamed(homePageRoute);
+          // Navigator.of(context).pushReplacementNamed(homePageRoute);
+          Navigator.of(context)
+              .pushReplacementNamed(verifyOTPRoute, arguments: state.id);
         }
       },
       child: signupBody(),

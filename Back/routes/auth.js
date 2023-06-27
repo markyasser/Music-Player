@@ -26,6 +26,7 @@ router.put(
   authController.signup
 );
 
+router.post("/verifyOTP", authController.verifyOTP);
 router.post("/login", authController.login);
 
 router.get("/user", isAuth, authController.getUserData);

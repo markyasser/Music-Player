@@ -5,6 +5,7 @@ const baseUrl = 'http://localhost:8080/';
 
 const homePageRoute = '/home';
 const loginRoute = '/login';
+const verifyOTPRoute = '/verifyOTP';
 const forgetPasswordRoute = '/forget_password';
 const changePasswordRoute = '/change_password';
 const signupRoute = '/signup';

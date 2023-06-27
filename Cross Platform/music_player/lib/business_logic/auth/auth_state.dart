@@ -11,11 +11,19 @@ class SignUpFailed extends AuthState {
 }
 
 class SignUpSuccessfully extends AuthState {
-  SignUpSuccessfully();
+  final String id;
+  SignUpSuccessfully(this.id);
 }
 
-class SignUpLoading extends AuthState {
-  SignUpLoading();
+class SignUpLoading extends AuthState {}
+
+class VerifyOTPSuccessfully extends AuthState {}
+
+class VerifyOTPLoading extends AuthState {}
+
+class VerifyOTPFailed extends AuthState {
+  final String errorMessage;
+  VerifyOTPFailed(this.errorMessage);
 }
 
 class LoginFailed extends AuthState {

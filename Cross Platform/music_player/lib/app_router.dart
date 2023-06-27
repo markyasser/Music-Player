@@ -10,6 +10,7 @@ import 'package:music_player/data/web_services/auth_webservices.dart';
 import 'package:music_player/data/web_services/music_webservices.dart';
 import 'package:music_player/presentation/screens/auth/login.dart';
 import 'package:music_player/presentation/screens/auth/signup.dart';
+import 'package:music_player/presentation/screens/auth/verifyOTP.dart';
 import 'package:music_player/presentation/screens/home.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:music_player/presentation/screens/upload.dart';
@@ -58,6 +59,13 @@ class AppRouter {
             builder: (_) => BlocProvider.value(
                   value: authCubit,
                   child: const Login(),
+                ));
+      case verifyOTPRoute:
+        String userId = settings.arguments as String;
+        return MaterialPageRoute(
+            builder: (_) => BlocProvider.value(
+                  value: authCubit,
+                  child: VerifyOTP(userId: userId),
                 ));
       case signupRoute:
         return MaterialPageRoute(

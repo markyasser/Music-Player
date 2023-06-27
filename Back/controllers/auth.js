@@ -13,6 +13,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
 
+const UserOTPVerification = require("../models/userOTPverification");
 const User = require("../models/user");
 
 const firebaseConfig = {
@@ -49,31 +50,25 @@ const createUser = async (req, res, next, imgUrl) => {
       profile: imgUrl,
     });
     const result = await user.save();
-    const token = jwt.sign(
-      {
-        email: result.email,
-        userId: result._id.toString(),
-      },
-      process.env.SECRET_KEY,
-      { expiresIn: process.env.TOKEN_EXPIRE }
-    );
-    transporter
-      .sendMail({
-        to: email,
-        from: process.env.SENDGRID_SENDER,
-        subject: "Signup succeeded!",
-        html: "<h1>You successfully signed up!</h1>",
-      })
-      .then(() => {
-        res.status(201).json({
-          username: result.name,
-          userId: result._id.toString(),
-          likedPosts: result.likedPosts,
-          profile: result.profile,
-          token: token,
-          message: "success",
-        });
-      });
+    sendOTPverification(result, res);
+    // const token = jwt.sign(
+    //   {
+    //     email: result.email,
+    //     userId: result._id.toString(),
+    //   },
+    //   process.env.SECRET_KEY,
+    //   { expiresIn: process.env.TOKEN_EXPIRE }
+    // );
+
+    // res.status(201).json({
+    //   username: result.name,
+    //   userId: result._id.toString(),
+    //   likedPosts: result.likedPosts,
+    //   profile: result.profile,
+    //   token: token,
+    //   verified: false,
+    //   message: "success",
+    // });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -82,14 +77,57 @@ const createUser = async (req, res, next, imgUrl) => {
   }
 };
 
-exports.signup = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const error = new Error("Validation failed.");
-    error.statusCode = 422;
-    error.data = errors.array();
-    throw error;
+const sendOTPverification = async ({ _id, email }, res) => {
+  try {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const mailOptions = {
+      to: email,
+      from: process.env.SENDGRID_SENDER,
+      subject: "OTP Verification",
+      html: `<p>Enter <b>${otp}</b> in the app to verify your identity.</p>
+      <p>OTP will expire in <b>30 minutes</b> .</p>`,
+    };
+
+    const hashedOtp = await bcrypt.hash(otp, 12);
+    await new UserOTPVerification({
+      userId: _id,
+      otp: hashedOtp,
+      createdAt: Date.now(),
+      expireAt: Date.now() + 30 * 60 * 1000,
+    }).save();
+    await transporter.sendMail(mailOptions);
+    res.status(201).json({
+      status: "pending",
+      message: "OTP sent successfully to your email",
+      data: {
+        userId: _id,
+        email: email,
+      },
+    });
+  } catch (err) {
+    res.status(422).json({
+      status: "failed",
+      message: err.message,
+    });
   }
+};
+
+exports.signup = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const error = new Error("Validation failed.");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    return next(err);
+  }
+
   // -----------Upload profile photo to Firebase-----------
   if (req.files) {
     const image = req.files["image"][0];
@@ -106,6 +144,65 @@ exports.signup = (req, res, next) => {
       });
   } else {
     createUser(req, res, next, "");
+  }
+};
+
+exports.verifyOTP = async (req, res) => {
+  try {
+    let { userId, otp } = req.body;
+    if (!userId || !otp) {
+      throw new Error("Empty OTP details are not allowed");
+    } else {
+      const userOTPrecord = await UserOTPVerification.findOne({
+        userId: userId,
+      });
+      if (!userOTPrecord) {
+        throw new Error("userOTPrecord not found");
+      } else {
+        const { expireAt } = userOTPrecord;
+        const hashedOtp = userOTPrecord.otp;
+        if (expireAt < Date.now()) {
+          await userOTPrecord.deleteOne({ userId: userId });
+          throw new Error("OTP expired");
+        } else {
+          const validOTP = await bcrypt.compare(otp, hashedOtp);
+          if (!validOTP) {
+            throw new Error("Invalid OTP");
+          } else {
+            const user = await User.updateOne(
+              { _id: userId },
+              { $set: { verified: true } }
+            );
+            await userOTPrecord.deleteOne({ userId: userId });
+            const updatedUser = await User.findById(userId);
+            const token = jwt.sign(
+              {
+                email: updatedUser.email,
+                userId: userId,
+              },
+              process.env.SECRET_KEY,
+              { expiresIn: process.env.TOKEN_EXPIRE }
+            );
+
+            res.status(201).json({
+              username: updatedUser.name,
+              userId: userId,
+              email: updatedUser.email,
+              likedPosts: updatedUser.likedPosts,
+              profile: updatedUser.profile,
+              token: token,
+              verified: true,
+              message: "success",
+            });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    res.status(422).json({
+      status: "failed",
+      message: err.message,
+    });
   }
 };
 
