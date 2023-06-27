@@ -61,11 +61,13 @@ class AppRouter {
                   child: const Login(),
                 ));
       case verifyOTPRoute:
-        String userId = settings.arguments as String;
+        Map<String, dynamic> args = settings.arguments as Map<String, dynamic>;
+        String email = args['email'];
+        String id = args['id'];
         return MaterialPageRoute(
             builder: (_) => BlocProvider.value(
                   value: authCubit,
-                  child: VerifyOTP(userId: userId),
+                  child: VerifyOTP(userId: id, email: email),
                 ));
       case signupRoute:
         return MaterialPageRoute(

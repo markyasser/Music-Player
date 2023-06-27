@@ -16,9 +16,23 @@ class AuthCubit extends Cubit<AuthState> {
     // print('test');
     authRepo.signup(password, username, email).then((value) {
       if (value!['status'] == 'pending') {
-        emit(SignUpSuccessfully(value['data']['userId']));
+        emit(SignUpSuccessfully(
+            value['data']['userId'], value['data']['email']));
       } else {
         emit(SignUpFailed(value['message']));
+      }
+    });
+  }
+
+  void resendOTPverification(String userId, String email) async {
+    if (isClosed) return;
+    emit(ResendOTPLoading());
+    // print('test');
+    authRepo.resendOTPverification(userId, email).then((value) {
+      if (value!['status'] == 'pending') {
+        emit(ResendOTPSuccessfully());
+      } else {
+        emit(ResendOTPFailed(value['message']));
       }
     });
   }

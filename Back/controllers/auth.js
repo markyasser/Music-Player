@@ -111,7 +111,6 @@ const sendOTPverification = async ({ _id, email }, res) => {
     });
   }
 };
-
 exports.signup = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -144,6 +143,23 @@ exports.signup = async (req, res, next) => {
       });
   } else {
     createUser(req, res, next, "");
+  }
+};
+
+exports.resendOTPVerificationCode = async (req, res) => {
+  try {
+    let { userId, email } = req.body;
+    if (!userId || !email) {
+      throw new Error("Empty OTP details are not allowed");
+    } else {
+      await UserOTPVerification.deleteOne({ userId: userId });
+      sendOTPverification({ _id: userId, email: email }, res);
+    }
+  } catch (err) {
+    res.status(422).json({
+      status: "failed",
+      message: err.message,
+    });
   }
 };
 

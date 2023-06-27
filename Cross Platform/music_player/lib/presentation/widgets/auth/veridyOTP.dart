@@ -5,7 +5,8 @@ import 'package:music_player/constants/strings.dart';
 
 class VerifyOTPWidget extends StatefulWidget {
   String userId;
-  VerifyOTPWidget({super.key, required this.userId});
+  String email;
+  VerifyOTPWidget({super.key, required this.userId, required this.email});
 
   @override
   State<VerifyOTPWidget> createState() => _VerifyOTPWidgetState();
@@ -72,12 +73,36 @@ class _VerifyOTPWidgetState extends State<VerifyOTPWidget> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: () {
-              // resend otp
-            },
-            child: const Text('Resend OTP', style: TextStyle(fontSize: 16)),
+          const SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: () {
+                  // resend otp
+                  BlocProvider.of<AuthCubit>(context)
+                      .resendOTPverification(widget.userId, widget.email);
+                },
+                child: const Text('Resend OTP',
+                    style: TextStyle(fontSize: 14, color: Colors.red)),
+              ),
+              BlocBuilder<AuthCubit, AuthState>(
+                builder: (context, state) {
+                  if (state is ResendOTPLoading) {
+                    return const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.red,
+                      ),
+                    );
+                  }
+                  return Container();
+                },
+              )
+            ],
           )
         ],
       ),

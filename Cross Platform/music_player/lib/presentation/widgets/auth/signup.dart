@@ -129,7 +129,10 @@ class _SignUpWidgetState extends State<SignUpWidget> {
         if (state is SignUpSuccessfully) {
           // Navigator.of(context).pushReplacementNamed(homePageRoute);
           Navigator.of(context)
-              .pushReplacementNamed(verifyOTPRoute, arguments: state.id);
+              .pushReplacementNamed(verifyOTPRoute, arguments: {
+            'id': state.id,
+            'email': state.email,
+          });
         }
       },
       child: signupBody(),

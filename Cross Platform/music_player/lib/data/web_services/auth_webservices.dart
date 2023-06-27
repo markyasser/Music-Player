@@ -42,6 +42,19 @@ class AuthWebService {
     }
   }
 
+  Future resendOTPverification(String userId, String email) async {
+    try {
+      var res = await dio.post('auth/resendOTPVerification', data: {
+        'userId': userId,
+        'email': email,
+      });
+      return res;
+    } catch (e) {
+      debugPrint("from signup $e");
+      return e;
+    }
+  }
+
   Future login(String password, String email) async {
     try {
       var res = await dio.post('auth/login', data: {
