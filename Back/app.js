@@ -50,21 +50,21 @@ app.post("/submit", (req, res, next) => {
   }
   submissions.push(name);
   console.log(submissions);
-  res.status(201).json({ message: "success" });
+  res.status(201).json({ message: "success", content: submissions });
 });
 app.delete("/remove", (req, res, next) => {
   const index = req.body.index;
   if (index < submissions.length) {
     submissions.splice(index, 1);
     console.log(submissions);
-    return res.status(201).json({ message: "success" });
+    return res.status(201).json({ message: "success", content: submissions });
   }
   res.status(201).json({ message: "Error : index out of range" });
 });
 app.post("/clear", (req, res, next) => {
   submissions = [];
   console.log(submissions);
-  return res.status(201).json({ message: "success" });
+  return res.status(201).json({ message: "success", content: submissions });
 });
 //------------------------------
 app.use("/feed", feedRoutes);
