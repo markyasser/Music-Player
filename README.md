@@ -31,7 +31,7 @@ This application is used to stream music and add your favorite music to the like
 - Update new songs
 - Listen to music
 - Like music
-- Listem to liked music
+- Listen to liked music
 - Full control of currently playing music
 
 ### User Authentication :
