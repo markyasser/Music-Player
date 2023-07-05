@@ -8,9 +8,11 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const helmet = require("helmet");
 const morgan = require("morgan");
-
+const swaggerUI = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
 const feedRoutes = require("./routes/feed");
 const authRoutes = require("./routes/auth");
+const options = require("./swagger-options");
 
 const app = express();
 
@@ -77,6 +79,9 @@ app.use((error, req, res, next) => {
   const data = error.data;
   res.status(status).json({ message: message, data: data });
 });
+
+const specs = swaggerJsDoc(options);
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
 mongoose
   .connect(process.env.DATABASE_URL, {
