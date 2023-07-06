@@ -6,15 +6,37 @@ This application is used to stream music and add your favorite music to the like
 
 ## Technology stack
 
-**Backend**
+### Backend
+Swagger API documentation can be found at */api-docs*
 
 <div style="display: flex; gap: 10px;">
   <img src="https://devicon-website.vercel.app/api/nodejs/original-wordmark.svg" width="60" height="60"></img>
   <img src="https://devicon-website.vercel.app/api/express/original-wordmark.svg?color=%23FFFFFF" width="60" height="60"></img>
   <img src="https://devicon-website.vercel.app/api/mongodb/original-wordmark.svg"  width="60" height="60"></img>
+  <img src="https://devicon-website.vercel.app/api/docker/plain-wordmark.svg"  width="60" height="60"></img>
 </div>
 
-**Frontend**
+**Installation**
+
+```bash
+$ npm install
+```
+
+**Run unit tests**
+```bash
+$ npm test
+```
+
+**Run the app**
+```bash
+$ npm start
+```
+
+**Run the docker image**
+```bash
+$ docker run -p 5000:8080 <image id>
+```
+### Frontend
 
 <div style="display: flex; gap: 10px;">
 <img src="https://devicon-website.vercel.app/api/flutter/original.svg" width="40" height="40"></img>
