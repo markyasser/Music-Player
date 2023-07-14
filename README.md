@@ -32,7 +32,7 @@ $ npm test
 $ npm start
 ```
 
-**Run the docker image**
+**Run the docker image** *in the docker branch*
 ```bash
 $ docker run -p 5000:8080 <image id>
 ```
