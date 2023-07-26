@@ -347,3 +347,130 @@ exports.likePost = (req, res, next) => {
       next(err);
     });
 };
+
+exports.createPlaylist = async (req, res, next) => {
+  const userId = req.userId;
+  const playlistName = req.body.name;
+  const playlist = { name: playlistName, items: [] };
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error("Could not find user with id = " + userId);
+      error.statusCode = 404;
+      throw error;
+    }
+    // If there is another playlist with the same name then return error
+    const playlistWithSameName = user.playlists.find(
+      (playlist) => playlist.name === playlistName
+    );
+    if (playlistWithSameName) {
+      return res.status(403).json({
+        message: "This name playlist name already exists",
+      });
+    }
+    user.playlists.push(playlist);
+    user.save();
+    return res.status(201).json({
+      message: "success",
+      playlist: playlist,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.getPlaylists = async (req, res, next) => {
+  const userId = req.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error("Could not find user with id = " + userId);
+      error.statusCode = 404;
+      throw error;
+    }
+    res.status(200).json({
+      message: "success",
+      playlists: user.playlists,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.getPlaylistById = async (req, res, next) => {
+  const userId = req.userId;
+  const playlistId = req.params.playlistId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error("Could not find user with id = " + userId);
+      error.statusCode = 404;
+      throw error;
+    }
+    // find the playlist that has id = playlistId
+    const targetPlaylist = user.playlists.find(
+      (playlist) => playlist.id === playlistId
+    );
+    if (!targetPlaylist) {
+      const error = new Error(
+        "Could not find playlist with id = " + playlistId
+      );
+      error.statusCode = 404;
+      throw error;
+    }
+    // get the items of the playlist
+    const items = targetPlaylist.items;
+    const musicList = await Post.find({ _id: { $in: items } });
+    res.status(200).json({
+      message: "success",
+      items: musicList,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.addItemToPlaylist = async (req, res, next) => {
+  const userId = req.userId;
+  const playlistName = req.body.name;
+  const postId = req.body.postId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error("Could not find user with id = " + userId);
+      error.statusCode = 404;
+      throw error;
+    }
+    // find the playlist that has id = playlistId and add the postId to its items
+    const targetPlaylist = user.playlists.find(
+      (playlist) => playlist.name === playlistName
+    );
+    if (!targetPlaylist) {
+      const error = new Error(
+        "Could not find playlist with name = " + playlistName
+      );
+      error.statusCode = 404;
+      throw error;
+    }
+    targetPlaylist.items.push(postId);
+    user.save();
+    res.status(200).json({
+      message: "success",
+      playlist: targetPlaylist,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

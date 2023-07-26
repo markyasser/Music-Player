@@ -257,6 +257,7 @@ exports.login = async (req, res, next) => {
       userId: loadedUser._id.toString(),
       likedPosts: loadedUser.likedPosts,
       profile: loadedUser.profile,
+      playlists: user.playlists,
       token: token,
       message: "success",
     });
@@ -282,6 +283,7 @@ exports.getUserData = async (req, res, next) => {
         username: user.name,
         userId: user._id.toString(),
         likedPosts: user.likedPosts,
+        playlists: user.playlists,
         profile: user.profile,
         message: "success",
       });

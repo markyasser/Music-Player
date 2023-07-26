@@ -41,6 +41,32 @@ class MusicWebService {
     }
   }
 
+  Future getPlaylistMusic(String playlistId) async {
+    try {
+      var res = await dio.get('feed/playlist/$playlistId',
+          options: Options(headers: {
+            'Authorization': 'Bearer ${UserData.user!.token}',
+          }));
+      return res;
+    } catch (e) {
+      debugPrint("from get playlist music $e");
+      return e;
+    }
+  }
+
+  Future getPlaylist() async {
+    try {
+      var res = await dio.get('feed/playlists',
+          options: Options(headers: {
+            'Authorization': 'Bearer ${UserData.user!.token}',
+          }));
+      return res;
+    } catch (e) {
+      debugPrint("from get playlists $e");
+      return e;
+    }
+  }
+
   Future like(String postId) async {
     try {
       var res = await dio.post('feed/like/$postId',
@@ -50,6 +76,20 @@ class MusicWebService {
       return res;
     } catch (e) {
       debugPrint("from like post $postId $e");
+      return e;
+    }
+  }
+
+  Future addToPlayList(String playlistName, String musicId) async {
+    try {
+      var res = await dio.post('feed/addToplaylist',
+          data: {'name': playlistName, 'postId': musicId},
+          options: Options(headers: {
+            'Authorization': 'Bearer ${UserData.user!.token}',
+          }));
+      return res;
+    } catch (e) {
+      debugPrint("from add to playlist $e");
       return e;
     }
   }

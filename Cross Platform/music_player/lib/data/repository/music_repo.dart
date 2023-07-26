@@ -38,6 +38,40 @@ class MusicRepository {
     return musicList;
   }
 
+  Future<List<MusicModel>?> getPlaylistMusic(String playlistId) async {
+    List<MusicModel>? musicList;
+    await musicWebService.getPlaylistMusic(playlistId).then((value) {
+      if (value.statusCode == 200) {
+        musicList = value.data['items'].map<MusicModel>((item) {
+          return MusicModel.fromJson(item);
+        }).toList();
+      } else {
+        debugPrint("get posts status code is ${value.statusCode}");
+        musicList = [];
+      }
+    });
+    return musicList;
+  }
+
+  Future<List<dynamic>?> getPlaylist() async {
+    List<dynamic> playlists = [];
+    await musicWebService.getPlaylist().then((value) {
+      if (value.statusCode == 200) {
+        playlists = value.data['playlists'].map<dynamic>((item) {
+          return {
+            "name": item['name'],
+            "id": item['_id'],
+            "number": item['items'].length,
+          };
+        }).toList();
+      } else {
+        debugPrint("get playlists status code is ${value.statusCode}");
+        playlists = [];
+      }
+    });
+    return playlists;
+  }
+
   Future<List<MusicModel>?> like(String postId) async {
     List<MusicModel>? musicList;
     await musicWebService.like(postId).then((value) {
@@ -51,6 +85,18 @@ class MusicRepository {
       }
     });
     return musicList;
+  }
+
+  Future<String?> addToPlayList(String playlistName, String musicId) async {
+    await musicWebService.addToPlayList(playlistName, musicId).then((value) {
+      if (value.statusCode == 200) {
+        return value.data['message'];
+      } else {
+        debugPrint("get posts status code is ${value.statusCode}");
+        return '';
+      }
+    });
+    return '';
   }
 
   Future<String> upload(

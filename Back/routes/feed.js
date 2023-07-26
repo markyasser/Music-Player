@@ -197,7 +197,7 @@ router.get("/post/:postId", isAuth, feedController.getPost);
  * @swagger
  * /feed/post:
  *   post:
- *     summary: upload a single music record
+ *     summary: Upload a single music record
  *     tags: [Feed]
  *     consumes:
  *       - multipart/form-data
@@ -292,7 +292,7 @@ router.post(
  * @swagger
  * /feed/like/{postId}:
  *   post:
- *     summary: like a music by its id
+ *     summary: Like a music by its id
  *     tags: [Feed]
  *     parameters:
  *       - in: path
@@ -357,7 +357,7 @@ router.post("/like/:postId", isAuth, feedController.likePost);
  * @swagger
  * /feed/post/{postId}:
  *   put:
- *     summary: update an existing song by its id
+ *     summary: Update an existing song by its id
  *     tags: [Feed]
  *     parameters:
  *       - in: path
@@ -429,7 +429,7 @@ router.put(
  * @swagger
  * /feed/post/{postId}:
  *   delete:
- *     summary: update an existing song by its id
+ *     summary: Update an existing song by its id
  *     tags: [Feed]
  *     parameters:
  *       - in: path
@@ -491,5 +491,98 @@ router.put(
  *      - bearerAuth: []
  */
 router.delete("/post/:postId", isAuth, feedController.deletePost);
+
+/**
+ * @swagger
+ * /feed/playlist:
+ *   post:
+ *     summary: Create new playlist
+ *     tags: [Feed]
+ *     responses:
+ *       201:
+ *         content:
+ *           application/json:
+ *             schema:
+ *                properties:
+ *                 message:
+ *                   type: string
+ *                   description: response status
+ *                 playlist:
+ *                   type: array
+ *                   items:
+ *                      type: array
+ *                      items:
+ *                        type: object
+ *                        properties:
+ *                          _id:
+ *                            type: string
+ *                            description: The music id
+ *
+ *       403:
+ *         description: Not authorized
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Not authenticated
+ *       500:
+ *         description: Internal server error
+ *     security:
+ *      - bearerAuth: []
+ */
+router.post("/playlist", isAuth, feedController.createPlaylist);
+
+/**
+ * @swagger
+ * /feed/addToplaylist:
+ *   post:
+ *     summary: Add music to playlist
+ *     tags: [Feed]
+ *     parameters:
+ *      - in: body
+ *        name: postId
+ *        required: true
+ *        description: The ID of the playlist
+ *        schema:
+ *          type: string
+ *      - in: body
+ *        name: postId
+ *        required: true
+ *        description: The ID of the music to add into the playlist
+ *        schema:
+ *          type: string
+ *     responses:
+ *       201:
+ *         content:
+ *           application/json:
+ *             schema:
+ *                properties:
+ *                 message:
+ *                   type: string
+ *                   description: response status
+ *                 playlist:
+ *                   type: array
+ *                   items:
+ *                      type: array
+ *                      items:
+ *                        type: object
+ *                        properties:
+ *                          _id:
+ *                            type: string
+ *                            description: The music id
+ *
+ *       403:
+ *         description: Not authorized
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Not authenticated
+ *       500:
+ *         description: Internal server error
+ *     security:
+ *      - bearerAuth: []
+ */
+router.post("/addToplaylist", isAuth, feedController.addItemToPlaylist);
+router.get("/playlists", isAuth, feedController.getPlaylists);
+router.get("/playlist/:playlistId", isAuth, feedController.getPlaylistById);
 
 module.exports = router;

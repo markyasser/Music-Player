@@ -17,12 +17,15 @@ class _LeftNavBarState extends State<LeftNavBar> {
             BlocProvider.of<MusicCubit>(context).getPosts();
           } else if (text == 'Liked') {
             BlocProvider.of<MusicCubit>(context).getLikedPosts();
+          } else if (text == 'Playlists') {
+            BlocProvider.of<MusicCubit>(context).getPlaylist();
           }
         },
-        child: Padding(
+        child: Container(
+          margin: const EdgeInsets.only(left: 10),
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Icon(icon),
               Text(
@@ -42,6 +45,8 @@ class _LeftNavBarState extends State<LeftNavBar> {
             () => BlocProvider.of<MusicCubit>(context).getPosts()),
         item('Liked', Icons.favorite,
             () => BlocProvider.of<MusicCubit>(context).getLikedPosts()),
+        item('Playlists', Icons.playlist_play_rounded,
+            () => BlocProvider.of<MusicCubit>(context).getPlaylist()),
       ],
     );
   }

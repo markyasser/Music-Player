@@ -32,6 +32,30 @@ class MusicCubit extends Cubit<MusicState> {
     });
   }
 
+  void getPlaylistMusic(String playlistId) async {
+    if (isClosed) return;
+    emit(MusicLoading());
+    musicRepo.getPlaylistMusic(playlistId).then((value) {
+      if (value != null) {
+        emit(MusicLoaded(value));
+      } else {
+        emit(MusicFaild());
+      }
+    });
+  }
+
+  void getPlaylist() async {
+    if (isClosed) return;
+    emit(PlaylistLoading());
+    musicRepo.getPlaylist().then((value) {
+      if (value != null) {
+        emit(PlaylistSuccess(value));
+      } else {
+        emit(PlaylistFaild());
+      }
+    });
+  }
+
   void like(String postId) async {
     if (isClosed) return;
     musicRepo.like(postId).then((value) {
@@ -39,6 +63,18 @@ class MusicCubit extends Cubit<MusicState> {
         emit(LikeSuccess(value));
       } else {
         emit(LikeFailed());
+      }
+    });
+  }
+
+  void addToPlayList(String playlistName, String musicId) async {
+    if (isClosed) return;
+    emit(AddToPlaylistLoading());
+    musicRepo.addToPlayList(playlistName, musicId).then((value) {
+      if (value != null) {
+        emit(AddToPlaylistSuccess());
+      } else {
+        emit(AddToPlaylistFailed());
       }
     });
   }
