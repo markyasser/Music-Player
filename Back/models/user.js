@@ -34,6 +34,17 @@ const userSchema = new Schema({
       ref: "Post",
     },
   ],
+  playlists: [
+    {
+      name: String,
+      items: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Post",
+        },
+      ],
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", userSchema);

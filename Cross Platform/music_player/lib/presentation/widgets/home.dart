@@ -1,10 +1,5 @@
-import 'dart:html';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/business_logic/music/music_cubit.dart';
@@ -39,7 +34,8 @@ class _HomeWidgetState extends State<HomeWidget> {
   Duration pausedDuration = Duration.zero;
   MusicModel? currentPLaying;
   List<MusicModel> currmusicList = [];
-
+  List<dynamic> playlists = [];
+  String _selectedPlaylist = '';
   late ConcatenatingAudioSource playlist;
 
   Stream<PositionData> get _positionDataStream =>
@@ -55,6 +51,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   @override
   void initState() {
     super.initState();
+    _selectedPlaylist = UserData.user!.playlists!.first['name'];
     BlocProvider.of<MusicCubit>(context).getPosts();
     _audioPlayer = AudioPlayer();
   }
@@ -99,6 +96,61 @@ class _HomeWidgetState extends State<HomeWidget> {
                 Navigator.of(context).pop();
               },
               child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAddToPlaylistDialog(
+      BuildContext context, String postId, String name) {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text(' Add Music to Playlist'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return DropdownButtonFormField<String>(
+                value: _selectedPlaylist,
+                items: UserData.user!.playlists!.map((playlist) {
+                  return DropdownMenuItem<String>(
+                    value: playlist['name'],
+                    child: Text(playlist['name'],
+                        style: const TextStyle(fontSize: 15)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedPlaylist = value!;
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Select Playlist',
+                  border: OutlineInputBorder(),
+                ),
+                itemHeight: 50,
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white)),
+            ),
+            ElevatedButton(
+              // red color
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              onPressed: () {
+                // delete(postId);
+                BlocProvider.of<MusicCubit>(context)
+                    .addToPlayList(_selectedPlaylist, postId);
+                setState(() {});
+                Navigator.of(context).pop();
+              },
+              child: const Text('Add'),
             ),
           ],
         );
@@ -160,13 +212,22 @@ class _HomeWidgetState extends State<HomeWidget> {
                     )
                   ],
                 ),
-                UserData.user!.userId == item.creatorId
-                    ? IconButton(
-                        onPressed: () => _showDeleteDialog(
+                Column(
+                  children: [
+                    UserData.user!.userId == item.creatorId
+                        ? IconButton(
+                            onPressed: () => _showDeleteDialog(
+                                context, item.id!, item.musicTitle!),
+                            splashRadius: 2,
+                            icon: const Icon(Icons.delete_outline))
+                        : Container(),
+                    IconButton(
+                        onPressed: () => _showAddToPlaylistDialog(
                             context, item.id!, item.musicTitle!),
                         splashRadius: 2,
-                        icon: const Icon(Icons.delete_outline))
-                    : Container()
+                        icon: const Icon(Icons.playlist_add))
+                  ],
+                )
               ],
             ),
           ),
@@ -248,6 +309,97 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
+  Widget playlistContent() {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Row(
+          children: [
+            const Expanded(flex: 1, child: LeftNavBar()),
+            playlists.isNotEmpty
+                ? Expanded(
+                    flex: 10,
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: playlists.map((item) {
+                            return InkWell(
+                              onTap: () {
+                                BlocProvider.of<MusicCubit>(context)
+                                    .getPlaylistMusic(item['id']);
+                              },
+                              child: SizedBox(
+                                height: 115,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Card(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 7, vertical: 3),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                child: Container(
+                                                  color: Colors.black12,
+                                                  width: 96,
+                                                  height: 96,
+                                                  child: const Icon(
+                                                      Icons.music_note_sharp,
+                                                      color: Colors.black26,
+                                                      size: 84),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const SizedBox(height: 10),
+                                                  Text(item['name']),
+                                                  const SizedBox(height: 5),
+                                                  Text(
+                                                      '${item['number']} songs',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.grey)),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ))
+                : const Expanded(
+                    flex: 10,
+                    child: Center(
+                        child: Text('Playlist is Empty',
+                            style: TextStyle(
+                                fontSize: 23, fontWeight: FontWeight.bold)))),
+          ],
+        ),
+        ProgressBarWidget(
+            positionDataStream: _positionDataStream, audioPlayer: _audioPlayer),
+      ],
+    );
+  }
+
   Widget homeBody() {
     return BlocBuilder<MusicCubit, MusicState>(
       builder: (context, state) {
@@ -260,6 +412,9 @@ class _HomeWidgetState extends State<HomeWidget> {
         } else if (state is UploadLoading || state is UploadFailed) {
           currmusicList = [];
           return content();
+        } else if (state is PlaylistSuccess) {
+          playlists = state.playlists;
+          return playlistContent();
         }
         return const Center(child: CircularProgressIndicator());
       },
