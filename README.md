@@ -54,6 +54,7 @@ $ docker run -p 5000:8080 <image id>
 - Listen to music
 - Like music
 - Listen to liked music
+- Create, add, get your music Playlists
 - Full control of currently playing music
 
 ### User Authentication :
